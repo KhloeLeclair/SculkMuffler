@@ -2,32 +2,23 @@ package dev.khloeleclair.skulkmuffler.client;
 
 import dev.khloeleclair.skulkmuffler.SculkMufflerMod;
 import dev.khloeleclair.skulkmuffler.client.renderers.MufflerBlockEntityRenderer;
-import dev.khloeleclair.skulkmuffler.client.screens.MufflerScreen;
 import dev.khloeleclair.skulkmuffler.common.Config;
 import dev.khloeleclair.skulkmuffler.common.MufflerTracker;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.network.CustomPackets;
-import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.*;
-import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.model.DefaultedBlockGeoModel;
 
 @Mod(value = SculkMufflerMod.MODID, dist = Dist.CLIENT)
 @EventBusSubscriber(modid = SculkMufflerMod.MODID, value = Dist.CLIENT)
@@ -90,6 +81,7 @@ public class SculkMufflerClient {
         else if (sound instanceof AbstractSoundInstance asi) {
             asi.volume = asi.volume * (float) volume;
         } else {
+            // Don't know what kind of sound we have, replace it and hope for the best.
             sound.resolve(event.getEngine().soundManager);
             float oldVolume = sound.getVolume();
             event.setSound(new SimpleSoundInstance(

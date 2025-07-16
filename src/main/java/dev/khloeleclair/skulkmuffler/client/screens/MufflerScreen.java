@@ -1,6 +1,5 @@
 package dev.khloeleclair.skulkmuffler.client.screens;
 
-import dev.khloeleclair.skulkmuffler.SculkMufflerMod;
 import dev.khloeleclair.skulkmuffler.common.Config;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.network.CustomPackets;
@@ -11,12 +10,11 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.common.NeoForgeConfig;
 import org.jetbrains.annotations.NotNull;
 
 public class MufflerScreen extends BaseOwoScreen<FlowLayout> {
 
-    private MufflerBlockEntity mbe;
+    private final MufflerBlockEntity mbe;
 
     private DiscreteSliderComponent rangeSlider;
     private DiscreteSliderComponent volumeSlider;
