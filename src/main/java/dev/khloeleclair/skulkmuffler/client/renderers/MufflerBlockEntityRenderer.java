@@ -239,11 +239,13 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
 
         int debug = block.effectiveDebug();
         if (debug != -1) {
-            setColor(Constants.AREAS[debug]);
-            if (Config.Client.rangeRenderer.get() == Config.RangeRenderer.SOLID)
+            if (Config.Client.rangeRenderer.get() == Config.RangeRenderer.SOLID) {
+                setColor(Constants.AREAS[debug]);
                 renderDebugQuads(block, poseStack, bufferSource);
-            else
+            } else {
+                setColor(0xFFFFFF);
                 renderDebugLines(block, poseStack, bufferSource);
+            }
         }
     }
 
