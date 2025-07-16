@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.j2objc.annotations.Weak;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
+import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
@@ -83,35 +84,65 @@ public class MufflerTracker {
         }
     }
 
-    public Stream<MufflerBlockEntity> getNearbyMufflers(@NotNull Level level, @NotNull Vec3 pos) {
+    public double getVolume(@NotNull Level level, @NotNull Vec3 pos) {
         final var map = MufflerMap.get(level);
         if (map == null)
-            return Stream.empty();
+            return 1.0;
 
         final int range = Config.Common.maxRange.get();
-        final int rs = range * range;
         final int minX = SectionPos.blockToSectionCoord(pos.x - range);
         final int maxX = SectionPos.blockToSectionCoord(pos.x + range);
         final int minZ = SectionPos.blockToSectionCoord(pos.z - range);
         final int maxZ = SectionPos.blockToSectionCoord(pos.z + range);
 
-        synchronized (map) {
-            return ChunkPos
-                    .rangeClosed(new ChunkPos(minX, minZ), new ChunkPos(maxX, maxZ))
-                    .flatMap(cp -> map.get(cp).stream())
-                    .map(pair -> {
-                        var be = level.getBlockEntity(pair.getLeft());
-                        if (be instanceof MufflerBlockEntity mbe && mbe.isInRange(pos))
-                            return mbe;
-                        return null;
-                    })
-                    .filter(Objects::nonNull);
+        float volume = MathHelpers.linearToDb(1.0);
+
+        for(int x = minX; x <= maxX; x++) {
+            for(int z = minZ; z <= maxZ; z++) {
+                for(var pair : map.get(new ChunkPos(x, z))) {
+                    var be = level.getBlockEntity(pair.getLeft());
+                    if (be instanceof MufflerBlockEntity mbe && mbe.isInRange(pos)) {
+                        volume += mbe.getVolumeDB();
+                    }
+                }
+            }
         }
+
+        return MathHelpers.dBtoLinear(volume);
     }
 
-    public Stream<MufflerBlockEntity> getNearbyMufflers(@NotNull Level level, @NotNull BlockPos pos) {
-        return getNearbyMufflers(level, Vec3.atCenterOf(pos));
-    }
+    public Pair<Double, MufflerBlockEntity> getNearbyAndVolume(@NotNull Level level, @NotNull Vec3 pos) {
+        final var map = MufflerMap.get(level);
+        if (map == null)
+            return Pair.of(1.0,null);
 
+        final int range = Config.Common.maxRange.get();
+        final int minX = SectionPos.blockToSectionCoord(pos.x - range);
+        final int maxX = SectionPos.blockToSectionCoord(pos.x + range);
+        final int minZ = SectionPos.blockToSectionCoord(pos.z - range);
+        final int maxZ = SectionPos.blockToSectionCoord(pos.z + range);
+
+        MufflerBlockEntity nearest = null;
+        double dist = Double.POSITIVE_INFINITY;
+        float volume = MathHelpers.linearToDb(1.0);
+
+        for(int x = minX; x <= maxX; x++) {
+            for(int z = minZ; z <= maxZ; z++) {
+                for(var pair : map.get(new ChunkPos(x, z))) {
+                    var be = level.getBlockEntity(pair.getLeft());
+                    if (be instanceof MufflerBlockEntity mbe && mbe.isInRange(pos)) {
+                        volume += mbe.getVolumeDB();
+                        double d = pos.distanceToSqr(pair.getLeft().getCenter());
+                        if (d < dist) {
+                            dist = d;
+                            nearest = mbe;
+                        }
+                    }
+                }
+            }
+        }
+
+        return Pair.of(MathHelpers.dBtoLinear(volume), nearest);
+    }
 
 }

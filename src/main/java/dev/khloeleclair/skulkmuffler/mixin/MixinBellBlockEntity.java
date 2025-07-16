@@ -41,12 +41,10 @@ public abstract class MixinBellBlockEntity extends BlockEntity {
             return;
 
         final var pos = getBlockPos();
-        double volume = MathHelpers.dBtoLinear(tracker.getNearbyMufflers(level, pos)
-                .map(MufflerBlockEntity::getVolumeDB)
-                .reduce(MathHelpers.linearToDb(1.0), Float::sum));
 
         // If the volume isn't low enough, resume.
-        if (volume > Config.Common.bellHeardVolume.get())
+        double volume = tracker.getVolume(level, pos.getCenter());
+        if (volume > MathHelpers.logToLinear(Config.Common.bellHeardVolume.get()))
             return;
 
         // Cancel the original, but update the nearby entities.
@@ -70,12 +68,9 @@ public abstract class MixinBellBlockEntity extends BlockEntity {
         if (tracker == null || level == null)
             return;
 
-        double volume = MathHelpers.dBtoLinear(tracker.getNearbyMufflers(level, pos)
-                .map(MufflerBlockEntity::getVolumeDB)
-                .reduce(MathHelpers.linearToDb(1.0), Float::sum));
-
         // If the volume is low enough, cancel this.
-        if (volume <= Config.Common.bellHighlightVolume.get())
+        double volume = tracker.getVolume(level, pos.getCenter());
+        if (volume <= MathHelpers.logToLinear(Config.Common.bellHighlightVolume.get()))
             ci.cancel();
     }
 

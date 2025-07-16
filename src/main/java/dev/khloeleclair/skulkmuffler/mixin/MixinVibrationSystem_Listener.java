@@ -33,11 +33,8 @@ public abstract class MixinVibrationSystem_Listener implements GameEventListener
         if (tracker == null)
             return;
 
-        double volume = MathHelpers.dBtoLinear(tracker.getNearbyMufflers(level, pos)
-                .map(MufflerBlockEntity::getVolumeDB)
-                .reduce(MathHelpers.linearToDb(1.0), Float::sum));
-
-        if (volume <= Config.Common.vibrationVolume.get())
+        double volume = tracker.getVolume(level, pos);
+        if (volume <= MathHelpers.logToLinear(Config.Common.vibrationVolume.get()))
             ci.cancel();
     }
 

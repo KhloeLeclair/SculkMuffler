@@ -18,6 +18,12 @@ import java.util.random.RandomGenerator;
 // Demonstrates how to use Neo's config APIs
 public class Config {
 
+    public enum RangeRenderer {
+        DISABLED,
+        SOLID,
+        LINES
+    }
+
     public static void register(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.CLIENT, clientSpec);
         modContainer.registerConfig(ModConfig.Type.COMMON, commonSpec);
@@ -54,17 +60,17 @@ public class Config {
             vibrationVolume = builder
                     .comment("Vibrations will be prevented if sounds are this volume or lower.")
                     .translation("sculkmuffler.config.muffling.vibration")
-                    .defineInRange("vibrationVolume", 0.0, 0.0, 1.0);
+                    .defineInRange("vibrationVolume", 0.01, 0.0, 1.0);
 
             bellHeardVolume = builder
                     .comment("Bells will not be heard by nearby entities if sounds are this volume or lower.")
                     .translation("sculkmuffler.config.muffling.bell.heard")
-                    .defineInRange("bellHeardVolume", 0.0, 0.0, 1.0);
+                    .defineInRange("bellHeardVolume", 0.01, 0.0, 1.0);
 
             bellHighlightVolume = builder
                     .comment("Bells will not highlight nearby raiders if sounds are this volume or lower.")
                     .translation("sculkmuffler.config.muffling.bell.highlight")
-                    .defineInRange("bellHighlightVolume", 0.0, 0.0, 1.0);
+                    .defineInRange("bellHighlightVolume", 0.01, 0.0, 1.0);
 
             builder.pop();
         }
@@ -72,6 +78,7 @@ public class Config {
 
     public static class _Client {
         public final ModConfigSpec.ConfigValue<List<? extends String>> immuneSources;
+        public final ModConfigSpec.EnumValue<RangeRenderer> rangeRenderer;
 
         _Client(ModConfigSpec.Builder builder) {
             builder.comment("Client-Only Configuration").push("client");
@@ -92,6 +99,11 @@ public class Config {
                             return false;
                         }
                     });
+
+            rangeRenderer = builder
+                    .comment("How the range is rendered when requested. Solid can cause issues due to translucency rendering.")
+                    .translation("sculkmuffler.config.muffling.range.renderer")
+                    .defineEnum("rangeRenderer", RangeRenderer.LINES);
 
             builder.pop();
         }

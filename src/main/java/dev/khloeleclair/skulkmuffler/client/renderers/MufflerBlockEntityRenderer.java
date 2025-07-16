@@ -1,12 +1,16 @@
 package dev.khloeleclair.skulkmuffler.client.renderers;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import dev.khloeleclair.skulkmuffler.client.models.MufflerBlockModel;
+import dev.khloeleclair.skulkmuffler.common.Config;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.utilities.Constants;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
@@ -16,6 +20,8 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
+
+import java.util.OptionalDouble;
 
 public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEntity> {
 
@@ -38,18 +44,36 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
         cB = FastColor.ARGB32.blue(packed);
     }
 
+    public static final RenderType test = RenderType.create(
+            "debug_lines",
+            DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.DEBUG_LINES,
+            1536,
+            RenderType.CompositeState.builder()
+                    .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+                    .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(2.0)))
+                    .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
+                    .setCullState(RenderStateShard.NO_CULL)
+                    .createCompositeState(false)
+    );
+
+
     private void AddVertex(VertexConsumer consumer, Matrix4f pose, float x, float y, float z) {
         consumer.addVertex(pose, x, y, z).setColor(cR, cG, cB, 50);
     }
 
+    private void AddVertex(VertexConsumer consumer, Matrix4f pose, float x, float y, float z, int alpha) {
+        consumer.addVertex(pose, x, y, z).setColor(cR, cG, cB, alpha);
+    }
+
     @Override
     public boolean shouldRenderOffScreen(MufflerBlockEntity blockEntity) {
-        return blockEntity.getDebug() != -1;
+        return blockEntity.effectiveDebug() != -1;
     }
 
     @Override
     public @NotNull AABB getRenderBoundingBox(MufflerBlockEntity block) {
-        if (block.getDebug() != -1) {
+        if (block.effectiveDebug() != -1) {
             final var center = block.getCenter();
             final float x = center.getX();
             final float y = center.getY();
@@ -62,7 +86,78 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
         return super.getRenderBoundingBox(block);
     }
 
-    public void renderDebug(@NotNull MufflerBlockEntity block, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource) {
+    public void renderDebugLines(@NotNull MufflerBlockEntity block, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource) {
+        poseStack.pushPose();
+
+        var pose = poseStack.last().pose();
+
+        final var pos = block.getBlockPos();
+        final var center = block.getCenter();
+        final float x = center.getX() - pos.getX();
+        final float y = center.getY() - pos.getY();
+        final float z = center.getZ() - pos.getZ();
+        final int radius = block.getRange();
+
+        // First, the quads
+        var consumer = bufferSource.getBuffer(test);
+
+        // Bottom and Top (negative/positive y)
+        for(int d = -radius; d <= radius + 1; d++) {
+            // Bottom N/S
+            AddVertex(consumer, pose, x + d, y - radius, z - radius);
+            AddVertex(consumer, pose, x + d, y - radius, z + radius + 1);
+
+            // Bottom E/W
+            AddVertex(consumer, pose, x - radius, y - radius, z + d);
+            AddVertex(consumer, pose, x + radius + 1, y - radius, z + d);
+
+            // Top N/S
+            AddVertex(consumer, pose, x + d, y + radius + 1, z - radius);
+            AddVertex(consumer, pose, x + d, y + radius + 1, z + radius + 1);
+
+            // Top E/W
+            AddVertex(consumer, pose, x - radius, y + radius + 1, z + d);
+            AddVertex(consumer, pose, x + radius + 1, y + radius + 1, z + d);
+
+            // North and South (negative/positive z)
+            // North Vertical
+            AddVertex(consumer, pose, x + d, y - radius, z - radius);
+            AddVertex(consumer, pose, x + d, y + radius + 1, z - radius);
+
+            // North Horizontal
+            AddVertex(consumer, pose, x - radius, y + d, z - radius);
+            AddVertex(consumer, pose, x + radius + 1, y + d, z - radius);
+
+            // South Vertical
+            AddVertex(consumer, pose, x + d, y - radius, z + radius + 1);
+            AddVertex(consumer, pose, x + d, y + radius + 1, z + radius + 1);
+
+            // South Horizontal
+            AddVertex(consumer, pose, x - radius, y + d, z + radius + 1);
+            AddVertex(consumer, pose, x + radius + 1, y + d, z + radius + 1);
+
+            // East and West (negative/positive x)
+            // West Vertical
+            AddVertex(consumer, pose, x - radius, y - radius, z + d);
+            AddVertex(consumer, pose, x - radius, y + radius + 1, z + d);
+
+            // West Horizontal
+            AddVertex(consumer, pose, x - radius, y + d, z - radius);
+            AddVertex(consumer, pose, x - radius, y + d, z + radius + 1);
+
+            // East Vertical
+            AddVertex(consumer, pose, x + radius + 1, y - radius, z + d);
+            AddVertex(consumer, pose, x + radius + 1, y + radius + 1, z + d);
+
+            // East Horizontal
+            AddVertex(consumer, pose, x + radius + 1, y + d, z - radius);
+            AddVertex(consumer, pose, x + radius + 1, y + d, z + radius + 1);
+        }
+
+        poseStack.popPose();
+    }
+
+    public void renderDebugQuads(@NotNull MufflerBlockEntity block, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource) {
         poseStack.pushPose();
 
         var pose = poseStack.last().pose();
@@ -142,10 +237,13 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
     ) {
         super.render(block, partialTick, poseStack, bufferSource, packedLight, packedOverlay);
 
-        int debug = block.getDebug();
+        int debug = block.effectiveDebug();
         if (debug != -1) {
             setColor(Constants.AREAS[debug]);
-            renderDebug(block, poseStack, bufferSource);
+            if (Config.Client.rangeRenderer.get() == Config.RangeRenderer.SOLID)
+                renderDebugQuads(block, poseStack, bufferSource);
+            else
+                renderDebugLines(block, poseStack, bufferSource);
         }
     }
 

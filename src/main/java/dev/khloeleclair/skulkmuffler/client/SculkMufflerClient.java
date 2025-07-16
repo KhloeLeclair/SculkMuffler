@@ -67,24 +67,9 @@ public class SculkMufflerClient {
             return;
 
         final var pos = new Vec3(sound.getX(), sound.getY(), sound.getZ());
+        Pair<Double, MufflerBlockEntity> pair = Instance.Tracker.getNearbyAndVolume(level, pos);
 
-        Pair<Float, MufflerBlockEntity> pair = Instance.Tracker.getNearbyMufflers(level, pos)
-                .map(mbe -> Pair.of(mbe.getVolumeDB(), mbe))
-                .reduce(Pair.of(MathHelpers.linearToDb(1.0f), null), (a,b) -> {
-                    final var a_mbe = a.getRight();
-                    final var b_mbe = b.getRight();
-
-                    final var a_dist = a_mbe == null
-                            ? Double.POSITIVE_INFINITY
-                            : pos.distanceToSqr(a_mbe.getBlockPos().getCenter());
-                    final var b_dist = b_mbe == null
-                            ? Double.POSITIVE_INFINITY
-                            : pos.distanceToSqr(b_mbe.getBlockPos().getCenter());
-
-                    return Pair.of(a.getLeft() + b.getLeft(), a_dist < b_dist ? a.getRight() : b.getRight());
-                });
-
-        final var volume = MathHelpers.dBtoLinear(pair.getLeft());
+        final double volume = pair.getLeft();
         if (volume >= 1)
             return;
 

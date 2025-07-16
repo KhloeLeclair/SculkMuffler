@@ -1,5 +1,6 @@
 package dev.khloeleclair.skulkmuffler.mixin;
 
+import dev.khloeleclair.skulkmuffler.SculkMufflerMod;
 import dev.khloeleclair.skulkmuffler.client.SculkMufflerClient;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
@@ -31,23 +32,9 @@ public class MixinSoundEngine {
             final var level = Minecraft.getInstance().level;
             if (tracker != null && level != null) {
                 final var pos = new Vec3(atsi.getX(), atsi.getY(), atsi.getZ());
-                Pair<Float, MufflerBlockEntity> pair = tracker.getNearbyMufflers(level, pos)
-                        .map(mbe -> Pair.of(mbe.getVolumeDB(), mbe))
-                        .reduce(Pair.of(MathHelpers.linearToDb(1.0), null), (a, b) -> {
-                            final var a_mbe = a.getRight();
-                            final var b_mbe = b.getRight();
+                Pair<Double, MufflerBlockEntity> pair = tracker.getNearbyAndVolume(level, pos);
 
-                            final var a_dist = a_mbe == null
-                                    ? Double.POSITIVE_INFINITY
-                                    : pos.distanceToSqr(a_mbe.getBlockPos().getCenter());
-                            final var b_dist = b_mbe == null
-                                    ? Double.POSITIVE_INFINITY
-                                    : pos.distanceToSqr(b_mbe.getBlockPos().getCenter());
-
-                            return Pair.of(a.getLeft() + b.getLeft(), a_dist < b_dist ? a.getRight() : b.getRight());
-                        });
-
-                final var volume = MathHelpers.dBtoLinear(pair.getLeft());
+                final double volume = pair.getLeft();
                 if (volume >= 1)
                     return;
 

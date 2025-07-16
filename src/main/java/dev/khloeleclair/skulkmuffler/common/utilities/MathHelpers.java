@@ -14,4 +14,12 @@ public class MathHelpers {
         return Math.pow(10.0, db / 20);
     }
 
+    public static double linearToLog(double linear) {
+        return Math.sqrt(linear);
+    }
+
+    public static double logToLinear(double log) {
+        return Math.pow(log, 2.0);
+    }
+
 }

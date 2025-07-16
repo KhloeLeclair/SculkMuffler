@@ -11,6 +11,7 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.common.NeoForgeConfig;
 import org.jetbrains.annotations.NotNull;
 
 public class MufflerScreen extends BaseOwoScreen<FlowLayout> {
@@ -61,17 +62,9 @@ public class MufflerScreen extends BaseOwoScreen<FlowLayout> {
         CustomPackets.CHANNEL.clientHandle().send(new CustomPackets.UpdateMuffler(
                 this.mbe.getBlockPos(),
                 (int) rangeSlider.discreteValue(),
-                logToLinear(volumeSlider.value()),
+                volumeSlider.discreteValue() / 100.0,
                 this.mbe.getDebug()
         ));
-    }
-
-    public static double linearToLog(double input) {
-        return Math.sqrt(input);
-    }
-
-    public static double logToLinear(double input) {
-        return Math.pow(input, 2.0);
     }
 
     @Override
@@ -91,17 +84,27 @@ public class MufflerScreen extends BaseOwoScreen<FlowLayout> {
             scheduleUpdate();
         });
 
-        int minVolume = (int) Math.floor(linearToLog(Config.Common.minVolume.get()) * 100);
+        int minVolume = (int) Math.floor(Config.Common.minVolume.get() * 100);
 
         volumeSlider = Components.discreteSlider(Sizing.fixed(100), minVolume, 100)
                 .snap(true);
 
-        volumeSlider.value(linearToLog(mbe.getVolume()));
+        volumeSlider.setFromDiscreteValue(mbe.getVolume() * 100.0);
         volumeSlider.message(s -> Component.literal(s + "%"));
         volumeSlider.onChanged().subscribe(val -> {
-            mbe.setVolume(logToLinear(volumeSlider.value()));
+            mbe.setVolume(volumeSlider.discreteValue() / 100.0);
+            //mbe.setVolume(volumeSlider.value());
             scheduleUpdate();
         });
+
+        io.wispforest.owo.ui.core.Component cmp;
+        if (Config.Client.rangeRenderer.get() == Config.RangeRenderer.DISABLED)
+            cmp = Components.label(Component.literal(""));
+        else
+            cmp = Components.button(Component.literal("R"), btn -> {
+                mbe.toggleDebug();
+                scheduleUpdate();
+            }).tooltip(Component.translatable("sculkmuffler.gui.show-range"));
 
         rootComponent.child(
             Containers.horizontalFlow(Sizing.content(), Sizing.content())
@@ -124,10 +127,7 @@ public class MufflerScreen extends BaseOwoScreen<FlowLayout> {
                     .horizontalAlignment(HorizontalAlignment.LEFT)
                 )
                 .child(Components.label(Component.literal(" ")))
-                .child(Components.button(Component.literal("R"), btn -> {
-                    mbe.toggleDebug();
-                    scheduleUpdate();
-                }).tooltip(Component.translatable("sculkmuffler.gui.show-range")))
+                .child(cmp)
                 .horizontalAlignment(HorizontalAlignment.CENTER)
                 .verticalAlignment(VerticalAlignment.TOP)
         );

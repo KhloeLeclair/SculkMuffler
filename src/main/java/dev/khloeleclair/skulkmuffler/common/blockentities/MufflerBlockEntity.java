@@ -39,6 +39,7 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity {
     );
 
     private double volume;
+    private double volume_linear;
     private float volume_db;
     private int range;
     private long lastParticleTime = -1;
@@ -46,9 +47,14 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity {
 
     public MufflerBlockEntity(BlockPos pos, BlockState state) {
         super(SculkMufflerMod.MUFFLER_BLOCK_ENTITY.get(), pos, state);
-        volume = Config.Common.minVolume.get();
-        volume_db = MathHelpers.linearToDb(volume);
         range = Config.Common.defaultRange.get();
+        volume = Config.Common.minVolume.get();
+        updateVolumes();
+    }
+
+    private void updateVolumes() {
+        volume_linear = MathHelpers.logToLinear(volume);
+        volume_db = MathHelpers.linearToDb(volume_linear);
     }
 
     //region Data
@@ -69,7 +75,7 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity {
         if (tag.contains("debug"))
             setDebug(tag.getInt("debug"));
 
-        volume_db = MathHelpers.linearToDb(volume);
+        updateVolumes();
         updateMuffler();
     }
 
@@ -189,6 +195,13 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity {
         );
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public int effectiveDebug() {
+        if (Config.Client.rangeRenderer.get() == Config.RangeRenderer.DISABLED)
+            return -1;
+        return debug_draw;
+    }
+
     public int getDebug() { return debug_draw; }
     public void setDebug(int value) {
         if (value < 0 || value >= Constants.AREAS.length)
@@ -217,15 +230,13 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity {
         level.sendBlockUpdated(getBlockPos(), state, state, 6);
     }
 
-    public void setVolume(int volume) {
-        setVolume(volume / 100.0);
-    }
-
     public void setVolume(double volume) {
         this.volume = Math.clamp(volume, Config.Common.minVolume.get(), 1);
-        volume_db = MathHelpers.linearToDb(this.volume);
+        updateVolumes();
         updateMuffler();
     }
+
+    public double getVolumeLog() { return volume_linear; }
 
     public float getVolumeDB() { return volume_db; }
 
