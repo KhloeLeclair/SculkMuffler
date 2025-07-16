@@ -6,6 +6,7 @@ import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
+import net.minecraft.client.resources.sounds.RidingMinecartSoundInstance;
 import net.minecraft.client.resources.sounds.TickableSoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.world.phys.Vec3;
@@ -31,7 +32,10 @@ public class MixinSoundEngine {
             final var tracker = SculkMufflerClient.Instance != null ? SculkMufflerClient.Instance.Tracker : null;
             final var level = Minecraft.getInstance().level;
             if (tracker != null && level != null) {
-                final var pos = new Vec3(atsi.getX(), atsi.getY(), atsi.getZ());
+                final var pos = atsi instanceof RidingMinecartSoundInstance rmsi
+                        ? rmsi.minecart.position()
+                        : new Vec3(atsi.getX(), atsi.getY(), atsi.getZ());
+
                 Pair<Double, MufflerBlockEntity> pair = tracker.getNearbyAndVolume(level, pos);
 
                 final double volume = pair.getLeft();

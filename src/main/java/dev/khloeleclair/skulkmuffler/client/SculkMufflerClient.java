@@ -25,6 +25,8 @@ import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.model.DefaultedBlockGeoModel;
 
 @Mod(value = SculkMufflerMod.MODID, dist = Dist.CLIENT)
@@ -66,7 +68,9 @@ public class SculkMufflerClient {
         if (!immune.isEmpty() && immune.contains(sound.getSource().toString()))
             return;
 
-        final var pos = new Vec3(sound.getX(), sound.getY(), sound.getZ());
+        final var pos = sound instanceof RidingMinecartSoundInstance rmsi
+            ? rmsi.minecart.position()
+            : new Vec3(sound.getX(), sound.getY(), sound.getZ());
         Pair<Double, MufflerBlockEntity> pair = Instance.Tracker.getNearbyAndVolume(level, pos);
 
         final double volume = pair.getLeft();
