@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "dev.khloeleclair.skulkmuffler.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["MixinVibrationSystem_Listener", "MixinBellBlockEntity"],
+  "client": ["MixinSoundEngine"],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "variants": {
+    "face=ceiling,facing=east,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 180,
+      "y": 270
+    },
+    "face=ceiling,facing=north,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 180,
+      "y": 180
+    },
+    "face=ceiling,facing=south,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 180
+    },
+    "face=ceiling,facing=west,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 180,
+      "y": 90
+    },
+    "face=floor,facing=east,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "y": 90
+    },
+    "face=floor,facing=north,enabled=true": {
+      "model": "sculkmuffler:block/muffler"
+    },
+    "face=floor,facing=south,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "y": 180
+    },
+    "face=floor,facing=west,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "y": 270
+    },
+    "face=wall,facing=east,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 90,
+      "y": 90
+    },
+    "face=wall,facing=north,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 90
+    },
+    "face=wall,facing=south,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 90,
+      "y": 180
+    },
+    "face=wall,facing=west,enabled=true": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 90,
+      "y": 270
+    },
+
+    "face=ceiling,facing=east,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 180,
+      "y": 270
+    },
+    "face=ceiling,facing=north,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 180,
+      "y": 180
+    },
+    "face=ceiling,facing=south,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 180
+    },
+    "face=ceiling,facing=west,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 180,
+      "y": 90
+    },
+    "face=floor,facing=east,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "y": 90
+    },
+    "face=floor,facing=north,enabled=false": {
+      "model": "sculkmuffler:block/muffler"
+    },
+    "face=floor,facing=south,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "y": 180
+    },
+    "face=floor,facing=west,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "y": 270
+    },
+    "face=wall,facing=east,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 90,
+      "y": 90
+    },
+    "face=wall,facing=north,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 90
+    },
+    "face=wall,facing=south,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 90,
+      "y": 180
+    },
+    "face=wall,facing=west,enabled=false": {
+      "model": "sculkmuffler:block/muffler",
+      "x": 90,
+      "y": 270
+    }
+  }
+}
