@@ -1,9 +1,7 @@
 package dev.khloeleclair.skulkmuffler.mixin;
 
-import dev.khloeleclair.skulkmuffler.SculkMufflerMod;
 import dev.khloeleclair.skulkmuffler.client.SculkMufflerClient;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
-import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.RidingMinecartSoundInstance;
@@ -23,7 +21,7 @@ import java.util.Iterator;
 
 @OnlyIn(Dist.CLIENT)
 @Mixin(SoundEngine.class)
-public class MixinSoundEngine {
+public abstract class MixinSoundEngine {
 
     @Inject(method = "tickNonPaused", at = @At(value = "INVOKE", target = "tick", ordinal = 0, shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILSOFT)
     public void inTickNotPaused(CallbackInfo ci, Iterator<?> var1, TickableSoundInstance tickablesoundinstance) {

@@ -3,7 +3,7 @@
   "package": "dev.khloeleclair.skulkmuffler.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": ["MixinVibrationSystem_Listener", "MixinBellBlockEntity"],
-  "client": ["MixinSoundEngine"],
+  "client": ["MixinSoundEngine", "create.MixinContinuousSound"],
   "injectors": {
     "defaultRequire": 1
   },
