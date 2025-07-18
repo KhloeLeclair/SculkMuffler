@@ -99,12 +99,10 @@ public class SculkMufflerMod {
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
         NeoForge.EVENT_BUS.register(TagCache.class);
+        modEventBus.addListener(CustomPackets::register);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
-
-        // Register our packets
-        CustomPackets.register();
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         Config.register(modContainer);

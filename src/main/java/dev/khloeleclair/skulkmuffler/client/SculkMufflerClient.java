@@ -6,7 +6,6 @@ import dev.khloeleclair.skulkmuffler.common.Config;
 import dev.khloeleclair.skulkmuffler.common.MufflerTracker;
 import dev.khloeleclair.skulkmuffler.common.TagCache;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
-import dev.khloeleclair.skulkmuffler.common.network.CustomPackets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.*;
 import net.minecraft.world.phys.Vec3;
@@ -37,8 +36,6 @@ public class SculkMufflerClient {
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
         // Do not forget to add translations for your config options to the en_us.json file.
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
-
-        CustomPackets.registerClient();
     }
 
     @SubscribeEvent

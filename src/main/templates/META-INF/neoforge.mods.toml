@@ -99,9 +99,3 @@ type="required"
 versionRange="[4.7.6,)"
 ordering="NONE"
 side="BOTH"
-
-[[dependencies.${mod_id}]]
-modId = "owo"
-type = "required"
-ordering = "AFTER"
-side = "BOTH"

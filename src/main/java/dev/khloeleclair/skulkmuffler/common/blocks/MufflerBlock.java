@@ -27,6 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -143,7 +144,7 @@ public class MufflerBlock extends FaceAttachedHorizontalDirectionalBlock impleme
             return InteractionResult.PASS;
 
         if (!level.isClientSide && player instanceof ServerPlayer sp) {
-            CustomPackets.CHANNEL.serverHandle(sp).send(new CustomPackets.OpenMufflerMenu(pos));
+            PacketDistributor.sendToPlayer(sp, new CustomPackets.OpenMufflerMenu(pos));
         }
 
         return InteractionResult.SUCCESS;
