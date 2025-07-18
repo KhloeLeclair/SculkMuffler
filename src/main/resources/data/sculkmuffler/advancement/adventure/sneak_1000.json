@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:adventure/avoid_vibration",
+  "neoforge:conditions": [
+    {
+      "type": "sculkmuffler:config_enabled",
+      "key": "wardenBlockVibrations"
+    }
+  ],
+  "criteria": {
+    "sculkmuffler:silence_near_warden": {
+      "trigger": "sculkmuffler:silence_near_warden"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "sculkmuffler.advancements.sneak_1000.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "sculkmuffler:muffler"
+    },
+    "title": {
+      "translate": "sculkmuffler.advancements.sneak_1000.title"
+    }
+  },
+  "requirements": [
+    [
+      "sculkmuffler:silence_near_warden"
+    ]
+  ]
+}

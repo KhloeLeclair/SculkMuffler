@@ -1,6 +1,7 @@
 package dev.khloeleclair.skulkmuffler.mixin;
 
 import dev.khloeleclair.skulkmuffler.client.SculkMufflerClient;
+import dev.khloeleclair.skulkmuffler.common.TagCache;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
@@ -27,6 +28,9 @@ public abstract class MixinSoundEngine {
     public void inTickNotPaused(CallbackInfo ci, Iterator<?> var1, TickableSoundInstance tickablesoundinstance) {
         // For now, force mute to see if it works.
         if (tickablesoundinstance instanceof AbstractTickableSoundInstance atsi && !atsi.isStopped()) {
+            if (TagCache.getIgnoreSounds().contains(atsi.getLocation()))
+                return;
+
             final var tracker = SculkMufflerClient.Instance != null ? SculkMufflerClient.Instance.Tracker : null;
             final var level = Minecraft.getInstance().level;
             if (tracker != null && level != null) {

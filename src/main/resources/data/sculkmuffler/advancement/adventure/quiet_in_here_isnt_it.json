@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:adventure/avoid_vibration",
+  "neoforge:conditions": [
+    {
+      "type": "sculkmuffler:config_enabled",
+      "key": "wardenSonicDamage"
+    }
+  ],
+  "criteria": {
+    "sculkmuffler:mute_sonic_boom": {
+      "trigger": "sculkmuffler:mute_sonic_boom"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "sculkmuffler.advancements.quiet_in_here.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "sculkmuffler:muffler"
+    },
+    "title": {
+      "translate": "sculkmuffler.advancements.quiet_in_here.title"
+    }
+  },
+  "requirements": [
+    [
+      "sculkmuffler:mute_sonic_boom"
+    ]
+  ]
+}

@@ -4,9 +4,17 @@
   "sculkmuffler.gui.volume": "Volume",
   "sculkmuffler.gui.range": "Range",
   "sculkmuffler.gui.show-range": "Show Range",
+  "sculkmuffler.gui.state": "State",
+
+  "sculkmuffler.gui.state.enabled": "On",
+  "sculkmuffler.gui.state.disabled": "Off",
 
   "sculkmuffler.configuration.client": "Client",
   "sculkmuffler.configuration.common": "Common",
+  "sculkmuffler.configuration.bell": "Bell Block",
+  "sculkmuffler.configuration.warden": "Warden Entity",
+
+  "config.jade.plugin_sculkmuffler.muffler": "Muffler Configuration",
 
   "sculkmuffler.config.muffling.range.max": "Maximum Radius",
   "sculkmuffler.config.muffling.range.default": "Default Radius",
@@ -15,5 +23,17 @@
   "sculkmuffler.config.muffling.bell.heard": "Bell Heard by Entities Cutoff Volume",
   "sculkmuffler.config.muffling.bell.highlight": "Bell Highlight Raiders Cutoff Volume",
 
-  "sculkmuffler.config.muffling.sources.immune": "Immune Sound Sources"
+  "sculkmuffler.config.muffling.warden.vibrations": "Block Vibrations",
+  "sculkmuffler.config.muffling.warden.sonic": "Sonic Damage Mode",
+  "sculkmuffler.config.muffling.warden.min-damage": "Minimum Damage",
+  "sculkmuffler.config.muffling.warden.min-volume": "Nullify at Volume",
+
+  "sculkmuffler.config.muffling.sources.immune": "Immune Sound Sources",
+
+  "sculkmuffler.advancements.sneak_1000.title": "Sneak 1000",
+  "sculkmuffler.advancements.sneak_1000.description": "Make noise near a Warden, but go undetected thanks to a Sculk Muffler.",
+
+  "sculkmuffler.advancements.quiet_in_here.title": "Quiet in here, isn't it?",
+  "sculkmuffler.advancements.quiet_in_here.description": "A Sonic Boom is just a really loud sound. Let's quiet that down so it doesn't hurt our ears, or anything else."
+
 }

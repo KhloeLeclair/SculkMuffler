@@ -1,7 +1,5 @@
 package dev.khloeleclair.skulkmuffler.common;
 
-import io.wispforest.owo.ui.core.Sizing;
-import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
@@ -9,9 +7,6 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
 
 // An example config class. This is not required, but it's a good idea to have one to keep your config organized.
@@ -22,6 +17,12 @@ public class Config {
         DISABLED,
         SOLID,
         LINES
+    }
+
+    public enum SonicDamageMode {
+        DISABLED,
+        SCALED,
+        NULLIFIED
     }
 
     public static void register(ModContainer modContainer) {
@@ -36,6 +37,11 @@ public class Config {
         public final ModConfigSpec.DoubleValue vibrationVolume;
         public final ModConfigSpec.DoubleValue bellHighlightVolume;
         public final ModConfigSpec.DoubleValue bellHeardVolume;
+
+        public final ModConfigSpec.BooleanValue wardenBlockVibrations;
+        public final ModConfigSpec.EnumValue<SonicDamageMode> wardenSonicDamage;
+        public final ModConfigSpec.DoubleValue wardenSonicDamageMin;
+        public final ModConfigSpec.DoubleValue wardenSonicNullifyVolume;
 
         _Common(ModConfigSpec.Builder builder) {
             builder.comment("Common Configuration").push("common");
@@ -58,19 +64,45 @@ public class Config {
                     .defineInRange("minVolume", 0.0, 0.0, 1.0);
 
             vibrationVolume = builder
-                    .comment("Vibrations will be prevented if sounds are this volume or lower.")
+                    .comment("Vibrations will be prevented if sounds are this volume or lower. Negative values disable this feature.")
                     .translation("sculkmuffler.config.muffling.vibration")
-                    .defineInRange("vibrationVolume", 0.01, 0.0, 1.0);
+                    .defineInRange("vibrationVolume", 0.01, -1.0, 1.0);
+
+            builder.pop();
+            builder.comment("Bell").push("bell");
 
             bellHeardVolume = builder
-                    .comment("Bells will not be heard by nearby entities if sounds are this volume or lower.")
+                    .comment("Bells will not be heard by nearby entities if sounds are this volume or lower. Negative values disable this feature.")
                     .translation("sculkmuffler.config.muffling.bell.heard")
-                    .defineInRange("bellHeardVolume", 0.01, 0.0, 1.0);
+                    .defineInRange("bellHeardVolume", 0.01, -1.0, 1.0);
 
             bellHighlightVolume = builder
-                    .comment("Bells will not highlight nearby raiders if sounds are this volume or lower.")
+                    .comment("Bells will not highlight nearby raiders if sounds are this volume or lower. Negative values disable this feature.")
                     .translation("sculkmuffler.config.muffling.bell.highlight")
-                    .defineInRange("bellHighlightVolume", 0.01, 0.0, 1.0);
+                    .defineInRange("bellHighlightVolume", 0.01, -1.0, 1.0);
+
+            builder.pop();
+            builder.comment("Warden").push("warden");
+
+            wardenBlockVibrations = builder
+                    .comment("Whether or not Sculk Mufflers are capable of preventing a Warden from hearing vibrations.")
+                    .translation("sculkmuffler.config.muffling.warden.vibrations")
+                    .define("wardenBlockVibrations", true);
+
+            wardenSonicDamage = builder
+                    .comment("How to affect sonic boom damage.\n- DISABLED: Sonic Boom damage is unchanged.\n- SCALED: Sonic Boom damage is reduced based on volume reduction, or nullified at a certain volume.\n- NULLIFIED: Sonic Boom damage is only nullified at a certain volume.")
+                    .translation("sculkmuffler.config.muffling.warden.sonic")
+                    .defineEnum("sonicDamageMode", SonicDamageMode.SCALED);
+
+            wardenSonicDamageMin = builder
+                    .comment("The minimum damage a scaled Sonic Boom should do. Only applies when the damage mode is set to SCALED.")
+                    .translation("sculkmuffler.config.muffling.warden.min-damage")
+                    .defineInRange("sonicDamageMin", 0.0, 0.0, 10.0);
+
+            wardenSonicNullifyVolume = builder
+                    .comment("Sonic Damage will be nullified if sounds are this volume or lower. Negative values disable this feature.")
+                    .translation("sculkmuffler.config.muffling.warden.min-volume")
+                    .defineInRange("sonicNullifyVolume", 0.0, -1.0, 1.0);
 
             builder.pop();
         }

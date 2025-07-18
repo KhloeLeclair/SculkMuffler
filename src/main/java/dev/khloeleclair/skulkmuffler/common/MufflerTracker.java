@@ -3,7 +3,6 @@ package dev.khloeleclair.skulkmuffler.common;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
-import com.google.j2objc.annotations.Weak;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
 import net.minecraft.core.BlockPos;
@@ -12,14 +11,10 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.tuple.Pair;
-import org.checkerframework.checker.units.qual.C;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.ref.WeakReference;
-import java.util.Objects;
 import java.util.WeakHashMap;
-import java.util.stream.Stream;
 
 public class MufflerTracker {
 
@@ -108,7 +103,7 @@ public class MufflerTracker {
             }
         }
 
-        return MathHelpers.dBtoLinear(volume);
+        return Math.max(0, MathHelpers.dBtoLinear(volume));
     }
 
     public Pair<Double, MufflerBlockEntity> getNearbyAndVolume(@NotNull Level level, @NotNull Vec3 pos) {
@@ -142,7 +137,7 @@ public class MufflerTracker {
             }
         }
 
-        return Pair.of(MathHelpers.dBtoLinear(volume), nearest);
+        return Pair.of(Math.max(0, MathHelpers.dBtoLinear(volume)), nearest);
     }
 
 }

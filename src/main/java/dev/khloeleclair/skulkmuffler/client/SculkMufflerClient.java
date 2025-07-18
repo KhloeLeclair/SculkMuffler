@@ -4,6 +4,7 @@ import dev.khloeleclair.skulkmuffler.SculkMufflerMod;
 import dev.khloeleclair.skulkmuffler.client.renderers.MufflerBlockEntityRenderer;
 import dev.khloeleclair.skulkmuffler.common.Config;
 import dev.khloeleclair.skulkmuffler.common.MufflerTracker;
+import dev.khloeleclair.skulkmuffler.common.TagCache;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.network.CustomPackets;
 import net.minecraft.client.Minecraft;
@@ -57,6 +58,9 @@ public class SculkMufflerClient {
 
         final var immune = Config.Client.immuneSources.get();
         if (!immune.isEmpty() && immune.contains(sound.getSource().toString()))
+            return;
+
+        if (TagCache.getIgnoreSounds().contains(sound.getLocation()))
             return;
 
         final var pos = sound instanceof RidingMinecartSoundInstance rmsi
