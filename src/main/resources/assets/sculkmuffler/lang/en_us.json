@@ -20,6 +20,7 @@
   "sculkmuffler.config.muffling.range.default": "Default Radius",
   "sculkmuffler.config.muffling.volume": "Minimum Volume",
   "sculkmuffler.config.muffling.vibration": "Vibration Cutoff Volume",
+  "sculkmuffler.config.muffling.global": "Global Sound Event Cutoff Volume",
   "sculkmuffler.config.muffling.bell.heard": "Bell Heard by Entities Cutoff Volume",
   "sculkmuffler.config.muffling.bell.highlight": "Bell Highlight Raiders Cutoff Volume",
 
@@ -29,6 +30,7 @@
   "sculkmuffler.config.muffling.warden.min-volume": "Nullify at Volume",
 
   "sculkmuffler.config.muffling.sources.immune": "Immune Sound Sources",
+  "sculkmuffler.config.muffling.range.renderer": "Range Renderer",
 
   "sculkmuffler.advancements.sneak_1000.title": "Sneak 1000",
   "sculkmuffler.advancements.sneak_1000.description": "Make noise near a Warden, but go undetected thanks to a Sculk Muffler.",

@@ -7,15 +7,7 @@
 			"bones": {
 				"thingy": {
 					"rotation": {
-						"0.0": {
-							"vector": [0, 0, 0]
-						},
-						"2.0": {
-							"vector": [0, 180, 0]
-						},
-						"4.0": {
-							"vector": [0, 360, 0]
-						}
+						"vector": [0, "(query.time_stamp*2)%360", 0]
 					},
 					"position": {
 						"0.0": {
@@ -45,6 +37,14 @@
 			"animation_length": 0.5,
 			"bones": {
 				"thingy": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, "(query.time_stamp*2)%360", 0]
+						}
+					},
 					"position": {
 						"0.0": {
 							"vector": [0, -4, 0]
@@ -61,6 +61,14 @@
 			"animation_length": 0.5,
 			"bones": {
 				"thingy": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, "(query.time_stamp*2)%360", 0]
+						},
+						"0.5": {
+							"vector": [0, 0, 0]
+						}
+					},
 					"position": {
 						"0.0": {
 							"vector": [0, 0, 0]

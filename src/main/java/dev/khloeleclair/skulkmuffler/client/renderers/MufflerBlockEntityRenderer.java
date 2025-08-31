@@ -45,25 +45,30 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
     }
 
     public static final RenderType test = RenderType.create(
-            "debug_lines",
-            DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.DEBUG_LINES,
-            1536,
+            "muffler_lines",
+            DefaultVertexFormat.POSITION_COLOR_NORMAL,
+            VertexFormat.Mode.LINES,
+            256,
+            false,
+            false,
             RenderType.CompositeState.builder()
-                    .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
-                    .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.of(2.0)))
-                    .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
+                    .setShaderState(RenderStateShard.RENDERTYPE_LINES_SHADER)
+                    .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                    .setLineState(new RenderStateShard.LineStateShard(OptionalDouble.empty()))
+                    .setLayeringState(RenderStateShard.VIEW_OFFSET_Z_LAYERING)
                     .setCullState(RenderStateShard.NO_CULL)
                     .createCompositeState(false)
     );
 
-
     private void AddVertex(VertexConsumer consumer, Matrix4f pose, float x, float y, float z) {
-        consumer.addVertex(pose, x, y, z).setColor(cR, cG, cB, 50);
+        consumer.addVertex(pose, x, y, z)
+                .setColor(cR, cG, cB, 50);
     }
 
-    private void AddVertex(VertexConsumer consumer, Matrix4f pose, float x, float y, float z, int alpha) {
-        consumer.addVertex(pose, x, y, z).setColor(cR, cG, cB, alpha);
+    private void AddVertex(VertexConsumer consumer, Matrix4f pose, float x, float y, float z, float dx, float dy, float dz) {
+        consumer.addVertex(pose, x, y, z)
+                .setColor(cR, cG, cB, 50)
+                .setNormal(dx, dy, dz);
     }
 
     @Override
@@ -104,54 +109,54 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
         // Bottom and Top (negative/positive y)
         for(int d = -radius; d <= radius + 1; d++) {
             // Bottom N/S
-            AddVertex(consumer, pose, x + d, y - radius, z - radius);
-            AddVertex(consumer, pose, x + d, y - radius, z + radius + 1);
+            AddVertex(consumer, pose, x + d, y - radius, z - radius, 0, 0, 1);
+            AddVertex(consumer, pose, x + d, y - radius, z + radius + 1, 0, 0, 1);
 
             // Bottom E/W
-            AddVertex(consumer, pose, x - radius, y - radius, z + d);
-            AddVertex(consumer, pose, x + radius + 1, y - radius, z + d);
+            AddVertex(consumer, pose, x - radius, y - radius, z + d, 1, 0, 0);
+            AddVertex(consumer, pose, x + radius + 1, y - radius, z + d, 1, 0, 0);
 
             // Top N/S
-            AddVertex(consumer, pose, x + d, y + radius + 1, z - radius);
-            AddVertex(consumer, pose, x + d, y + radius + 1, z + radius + 1);
+            AddVertex(consumer, pose, x + d, y + radius + 1, z - radius, 0, 0, 1);
+            AddVertex(consumer, pose, x + d, y + radius + 1, z + radius + 1, 0, 0, 1);
 
             // Top E/W
-            AddVertex(consumer, pose, x - radius, y + radius + 1, z + d);
-            AddVertex(consumer, pose, x + radius + 1, y + radius + 1, z + d);
+            AddVertex(consumer, pose, x - radius, y + radius + 1, z + d, 1, 0, 0);
+            AddVertex(consumer, pose, x + radius + 1, y + radius + 1, z + d, 1, 0, 0);
 
             // North and South (negative/positive z)
             // North Vertical
-            AddVertex(consumer, pose, x + d, y - radius, z - radius);
-            AddVertex(consumer, pose, x + d, y + radius + 1, z - radius);
+            AddVertex(consumer, pose, x + d, y - radius, z - radius, 0, 1, 0);
+            AddVertex(consumer, pose, x + d, y + radius + 1, z - radius, 0, 1, 0);
 
             // North Horizontal
-            AddVertex(consumer, pose, x - radius, y + d, z - radius);
-            AddVertex(consumer, pose, x + radius + 1, y + d, z - radius);
+            AddVertex(consumer, pose, x - radius, y + d, z - radius, 1, 0, 0);
+            AddVertex(consumer, pose, x + radius + 1, y + d, z - radius, 1, 0, 0);
 
             // South Vertical
-            AddVertex(consumer, pose, x + d, y - radius, z + radius + 1);
-            AddVertex(consumer, pose, x + d, y + radius + 1, z + radius + 1);
+            AddVertex(consumer, pose, x + d, y - radius, z + radius + 1, 0, 1, 0);
+            AddVertex(consumer, pose, x + d, y + radius + 1, z + radius + 1, 0, 1, 0);
 
             // South Horizontal
-            AddVertex(consumer, pose, x - radius, y + d, z + radius + 1);
-            AddVertex(consumer, pose, x + radius + 1, y + d, z + radius + 1);
+            AddVertex(consumer, pose, x - radius, y + d, z + radius + 1, 1, 0, 0);
+            AddVertex(consumer, pose, x + radius + 1, y + d, z + radius + 1, 1, 0, 0);
 
             // East and West (negative/positive x)
             // West Vertical
-            AddVertex(consumer, pose, x - radius, y - radius, z + d);
-            AddVertex(consumer, pose, x - radius, y + radius + 1, z + d);
+            AddVertex(consumer, pose, x - radius, y - radius, z + d, 0, 1, 0);
+            AddVertex(consumer, pose, x - radius, y + radius + 1, z + d, 0, 1, 0);
 
             // West Horizontal
-            AddVertex(consumer, pose, x - radius, y + d, z - radius);
-            AddVertex(consumer, pose, x - radius, y + d, z + radius + 1);
+            AddVertex(consumer, pose, x - radius, y + d, z - radius, 0, 0, 1);
+            AddVertex(consumer, pose, x - radius, y + d, z + radius + 1, 0, 0, 1);
 
             // East Vertical
-            AddVertex(consumer, pose, x + radius + 1, y - radius, z + d);
-            AddVertex(consumer, pose, x + radius + 1, y + radius + 1, z + d);
+            AddVertex(consumer, pose, x + radius + 1, y - radius, z + d, 0, 1, 0);
+            AddVertex(consumer, pose, x + radius + 1, y + radius + 1, z + d, 0, 1, 0);
 
             // East Horizontal
-            AddVertex(consumer, pose, x + radius + 1, y + d, z - radius);
-            AddVertex(consumer, pose, x + radius + 1, y + d, z + radius + 1);
+            AddVertex(consumer, pose, x + radius + 1, y + d, z - radius, 0, 0, 1);
+            AddVertex(consumer, pose, x + radius + 1, y + d, z + radius + 1, 0, 0, 1);
         }
 
         poseStack.popPose();
@@ -243,7 +248,7 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
                 setColor(Constants.AREAS[debug]);
                 renderDebugQuads(block, poseStack, bufferSource);
             } else {
-                setColor(0xFFFFFF);
+                setColor(0x008C8D);
                 renderDebugLines(block, poseStack, bufferSource);
             }
         }

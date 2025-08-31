@@ -35,6 +35,7 @@ public class Config {
         public final ModConfigSpec.IntValue defaultRange;
         public final ModConfigSpec.DoubleValue minVolume;
         public final ModConfigSpec.DoubleValue vibrationVolume;
+        public final ModConfigSpec.DoubleValue antiGlobalVolume;
         public final ModConfigSpec.DoubleValue bellHighlightVolume;
         public final ModConfigSpec.DoubleValue bellHeardVolume;
 
@@ -67,6 +68,11 @@ public class Config {
                     .comment("Vibrations will be prevented if sounds are this volume or lower. Negative values disable this feature.")
                     .translation("sculkmuffler.config.muffling.vibration")
                     .defineInRange("vibrationVolume", 0.01, -1.0, 1.0);
+
+            antiGlobalVolume = builder
+                    .comment("Global sound events will be converted to local sound events if sounds are this volume or lower. Negative values disable this feature.")
+                    .translation("sculkmuffler.config.muffling.global")
+                    .defineInRange("antiGlobalVolume", 0.99, -1.0, 1.0);
 
             builder.pop();
             builder.comment("Bell").push("bell");

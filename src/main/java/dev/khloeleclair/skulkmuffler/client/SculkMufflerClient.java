@@ -8,6 +8,7 @@ import dev.khloeleclair.skulkmuffler.common.TagCache;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.*;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -20,6 +21,8 @@ import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.WeakHashMap;
+
 @Mod(value = SculkMufflerMod.MODID, dist = Dist.CLIENT)
 @EventBusSubscriber(modid = SculkMufflerMod.MODID, value = Dist.CLIENT)
 public class SculkMufflerClient {
@@ -28,9 +31,12 @@ public class SculkMufflerClient {
 
     public final MufflerTracker Tracker;
 
+    private final WeakHashMap<SoundInstance, Pair<Float, Float>> KnownVolumes;
+
     public SculkMufflerClient(ModContainer container) {
         Instance = this;
         Tracker = new MufflerTracker();
+        KnownVolumes = new WeakHashMap<>();
 
         // Allows NeoForge to create a config screen for this mod's configs.
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
@@ -41,6 +47,39 @@ public class SculkMufflerClient {
     @SubscribeEvent
     public static void registerRenderers(final EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(SculkMufflerMod.MUFFLER_BLOCK_ENTITY.get(), MufflerBlockEntityRenderer::new);
+    }
+
+    public static void handleSoundVolume(AbstractSoundInstance asi, float muffle_amount) {
+        if (Instance == null)
+            return;
+
+        final var map = Instance.KnownVolumes;
+        final float old_volume = asi.volume;
+
+        var existing = map.get(asi);
+        if (existing != null) {
+            final float initial = existing.getLeft();
+            final float previous = existing.getRight();
+
+            if (asi.volume == previous) {
+                asi.volume = Math.clamp(initial, 0f, 1f) * muffle_amount;
+                if (asi.volume != previous) {
+                    if (muffle_amount >= 1f)
+                        map.remove(asi);
+                    else
+                        map.put(asi, Pair.of(initial, asi.volume));
+                }
+                return;
+            }
+
+        } else if (muffle_amount >= 1f)
+            return;
+
+        // If we got here, we either had no existing volume or the volume was
+        // modified by an outside source so we need to store the new volume
+        // as the new original.
+        asi.volume = Math.clamp(old_volume, 0f, 1f) * muffle_amount;
+        map.put(asi, Pair.of(old_volume, asi.volume));
     }
 
     @SubscribeEvent
@@ -61,26 +100,35 @@ public class SculkMufflerClient {
             return;
 
         final var pos = sound instanceof RidingMinecartSoundInstance rmsi
-            ? rmsi.minecart.position()
-            : new Vec3(sound.getX(), sound.getY(), sound.getZ());
+                ? rmsi.minecart.position()
+                : new Vec3(sound.getX(), sound.getY(), sound.getZ());
         Pair<Double, MufflerBlockEntity> pair = Instance.Tracker.getNearbyAndVolume(level, pos);
 
         final double volume = pair.getLeft();
-        if (volume >= 1)
-            return;
-
-        final var mbe = pair.getRight();
-
-        if (mbe != null)
-            mbe.drawSculkParticle(pos);
+        if (volume < 1) {
+            final var mbe = pair.getRight();
+            if (mbe != null)
+                mbe.drawSculkParticle(pos);
+        }
 
         // We do ATSI separately to ensure they aren't nulled.
-        if (sound instanceof AbstractTickableSoundInstance atsi)
-            atsi.volume = atsi.volume * (float) volume;
-        else if (volume < 0.0001)
+        if (sound instanceof AbstractTickableSoundInstance atsi) {
+            handleSoundVolume(atsi, (float) volume);
+
+        } else if (sound instanceof AbstractSoundInstance asi && sound.getSource() == SoundSource.RECORDS) {
+            // We also handle record sounds separately.
+            handleSoundVolume(asi, (float) volume);
+
+        } else if (volume >= 1) {
+            // Intentionally do nothing.
+
+        } else if (volume < 0.0001) {
+            // nullify other sounds that are too quiet.
             event.setSound(null);
-        else if (sound instanceof AbstractSoundInstance asi) {
-            asi.volume = asi.volume * (float) volume;
+
+        } else if (sound instanceof AbstractSoundInstance asi) {
+            asi.volume = Math.clamp(asi.volume, 0f, 1f) * (float) volume;
+
         } else {
             // Don't know what kind of sound we have, replace it and hope for the best.
             sound.resolve(event.getEngine().soundManager);
@@ -88,7 +136,7 @@ public class SculkMufflerClient {
             event.setSound(new SimpleSoundInstance(
                     sound.getLocation(),
                     sound.getSource(),
-                    oldVolume * (float) volume,
+                    Math.clamp(oldVolume, 0f, 1f) * (float) volume,
                     sound.getPitch(),
                     SoundInstance.createUnseededRandom(),
                     sound.isLooping(),

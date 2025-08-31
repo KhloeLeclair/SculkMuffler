@@ -1,4 +1,4 @@
-package dev.khloeleclair.skulkmuffler.mixin.create;
+package dev.khloeleclair.skulkmuffler.mixin.client.create;
 
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.sounds.SoundEvent;

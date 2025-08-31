@@ -2,8 +2,8 @@
   "required": true,
   "package": "dev.khloeleclair.skulkmuffler.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["MixinVibrationSystem_Listener", "MixinBellBlockEntity"],
-  "client": ["MixinSoundEngine", "create.MixinContinuousSound"],
+  "mixins": ["MixinVibrationSystem_Listener", "MixinBellBlockEntity", "MixinServerLevel"],
+  "client": ["client.MixinSoundEngine", "client.create.MixinContinuousSound"],
   "injectors": {
     "defaultRequire": 1
   },
