@@ -46,7 +46,8 @@ public abstract class MixinSoundEngine {
         // Let's update all playing record sounds.
 
         final var tracker = SculkMufflerClient.Instance == null ? null : SculkMufflerClient.Instance.Tracker;
-        final var level = Minecraft.getInstance().level;
+        final var mc = Minecraft.getInstance();
+        final var level = mc.level;
         if (level == null || tracker == null)
             return;
 
@@ -54,6 +55,8 @@ public abstract class MixinSoundEngine {
         final var immune = Config.Client.immuneSources.get();
         if (!immune.isEmpty() && immune.contains(SoundSource.RECORDS.toString()))
             return;
+
+        final var listenerPos = mc.cameraEntity == null ? null : mc.cameraEntity.getEyePosition();
 
         for (Map.Entry<SoundInstance, ChannelAccess.ChannelHandle> entry : this.instanceToChannel.entrySet()) {
             final var sound = entry.getKey();
@@ -65,7 +68,7 @@ public abstract class MixinSoundEngine {
                 continue;
 
             final var pos = new Vec3(sound.getX(), sound.getY(), sound.getZ());
-            final var pair = tracker.getNearbyAndVolume(level, pos);
+            final var pair = tracker.getNearbyAndVolume(level, pos, listenerPos, sound.getLocation(), sound.getSource());
             final double volume = pair.getLeft();
             if (volume < 1) {
                 final var mbe = pair.getRight();
@@ -102,13 +105,16 @@ public abstract class MixinSoundEngine {
                 return;
 
             final var tracker = SculkMufflerClient.Instance != null ? SculkMufflerClient.Instance.Tracker : null;
-            final var level = Minecraft.getInstance().level;
+            final var mc = Minecraft.getInstance();
+            final var level = mc.level;
             if (tracker != null && level != null) {
                 final var pos = atsi instanceof RidingMinecartSoundInstance rmsi
                         ? rmsi.minecart.position()
                         : new Vec3(atsi.getX(), atsi.getY(), atsi.getZ());
 
-                Pair<Double, MufflerBlockEntity> pair = tracker.getNearbyAndVolume(level, pos);
+                final var listenerPos = mc.cameraEntity == null ? null : mc.cameraEntity.getEyePosition();
+
+                Pair<Double, MufflerBlockEntity> pair = tracker.getNearbyAndVolume(level, pos, listenerPos, atsi.getLocation(), atsi.getSource());
 
                 final double volume = pair.getLeft();
                 if (volume < 1) {

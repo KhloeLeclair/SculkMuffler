@@ -42,8 +42,12 @@ public abstract class MixinVibrationSystem_Listener implements GameEventListener
         if (is_warden && ! Config.Common.wardenBlockVibrations.get())
             return;
 
-        double volume = tracker.getVolume(level, pos);
-        if (volume <= MathHelpers.logToLinear(Config.Common.vibrationVolume.get())) {
+        final double cutoff = Config.Common.vibrationVolume.get();
+        if (cutoff < 0.0)
+            return;
+
+        double volume = tracker.getVolume(level, pos, sensorPos, null, null);
+        if (volume <= MathHelpers.logToLinear(cutoff)) {
             if (is_warden && context.sourceEntity() instanceof ServerPlayer sp)
                 Triggers.silenceNearWarden(sp);
 

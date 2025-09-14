@@ -7,6 +7,8 @@ import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -79,7 +81,12 @@ public class MufflerTracker {
         }
     }
 
-    public double getVolume(@NotNull Level level, @NotNull Vec3 pos) {
+    public boolean isEmpty(@NotNull Level level) {
+        final var map = MufflerMap.get(level);
+        return map == null;
+    }
+
+    public double getVolume(@NotNull Level level, @NotNull Vec3 pos, @Nullable Vec3 listenerPos, @Nullable ResourceLocation sound, @Nullable SoundSource soundSource) {
         final var map = MufflerMap.get(level);
         if (map == null)
             return 1.0;
@@ -97,7 +104,12 @@ public class MufflerTracker {
                 for(var pair : map.get(new ChunkPos(x, z))) {
                     var be = level.getBlockEntity(pair.getLeft());
                     if (be instanceof MufflerBlockEntity mbe && mbe.isInRange(pos)) {
-                        volume += mbe.getVolumeDB();
+                        if (sound != null)
+                            mbe.recordNearbySound(sound);
+
+                        if ((listenerPos == null || mbe.shouldAffectListener(listenerPos)) && (sound == null || mbe.shouldAffectSound(sound, soundSource))) {
+                            volume += mbe.getVolumeDB();
+                        }
                     }
                 }
             }
@@ -106,7 +118,7 @@ public class MufflerTracker {
         return Math.max(0, MathHelpers.dBtoLinear(volume));
     }
 
-    public Pair<Double, MufflerBlockEntity> getNearbyAndVolume(@NotNull Level level, @NotNull Vec3 pos) {
+    public Pair<Double, MufflerBlockEntity> getNearbyAndVolume(@NotNull Level level, @NotNull Vec3 pos, @Nullable Vec3 listenerPos, @Nullable ResourceLocation sound, @Nullable SoundSource soundSource) {
         final var map = MufflerMap.get(level);
         if (map == null)
             return Pair.of(1.0,null);
@@ -126,11 +138,15 @@ public class MufflerTracker {
                 for(var pair : map.get(new ChunkPos(x, z))) {
                     var be = level.getBlockEntity(pair.getLeft());
                     if (be instanceof MufflerBlockEntity mbe && mbe.isInRange(pos)) {
-                        volume += mbe.getVolumeDB();
-                        double d = pos.distanceToSqr(pair.getLeft().getCenter());
-                        if (d < dist) {
-                            dist = d;
-                            nearest = mbe;
+                        if (sound != null)
+                            mbe.recordNearbySound(sound);
+                        if ((listenerPos == null || mbe.shouldAffectListener(listenerPos)) && (sound == null || mbe.shouldAffectSound(sound, soundSource))) {
+                            volume += mbe.getVolumeDB();
+                            double d = pos.distanceToSqr(pair.getLeft().getCenter());
+                            if (d < dist) {
+                                dist = d;
+                                nearest = mbe;
+                            }
                         }
                     }
                 }

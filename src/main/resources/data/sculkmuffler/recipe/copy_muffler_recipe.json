@@ -1,0 +1,6 @@
+{
+  "type": "sculkmuffler:copy_component",
+  "ingredient": {
+    "item": "sculkmuffler:advanced_muffler"
+  }
+}

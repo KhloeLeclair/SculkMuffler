@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_components",
+              "include": [
+                "minecraft:custom_name",
+                "sculkmuffler:target_resource",
+                "sculkmuffler:target_category"
+              ],
+              "source": "block_entity"
+            }
+          ],
+          "name": "sculkmuffler:advanced_muffler"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "sculkmuffler:blocks/advanced_muffler"
+}

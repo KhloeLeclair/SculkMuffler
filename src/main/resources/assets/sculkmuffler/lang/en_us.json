@@ -1,13 +1,54 @@
 {
   "block.sculkmuffler.muffler": "Sculk Muffler",
+  "block.sculkmuffler.advanced_muffler": "Advanced Sculk Muffler",
 
   "sculkmuffler.gui.volume": "Volume",
   "sculkmuffler.gui.range": "Range",
   "sculkmuffler.gui.show-range": "Show Range",
+  "sculkmuffler.gui.range.about": "This allows you to visualize the range that a muffler works across. Note that this affects all nearby players and not just yourself.",
   "sculkmuffler.gui.state": "State",
+
+  "sculkmuffler.gui.contain": "Contain",
+  "sculkmuffler.gui.contain.about": "When this is enabled, the muffler will prevent sounds from leaving the area around it, rather than silencing them entirely. This can be used to, as an example, keep music from escaping a room.",
+  "sculkmuffler.gui.containment": "Containment Mode",
+
+  "sculkmuffler.gui.sound": "Sounds...",
+  "sculkmuffler.gui.sound.about": "This allows you to configure a list of sounds for the muffler to allow, or a list to block specifically while allowing all others.",
+  "sculkmuffler.gui.sound-denylist": "Sound Denylist (%s)",
+  "sculkmuffler.gui.sound-allowlist": "Sound Allowlist (%s)",
+  "sculkmuffler.gui.sound-count": "%s Items",
+  "sculkmuffler.gui.sounds-hold": "- Hold [%s] to View List",
+
+  "sculkmuffler.gui.category": "Categories...",
+  "sculkmuffler.gui.category.about": "This allows you to configure a list of sound categories (Hostile Mobs, Blocks, etc.) to allow, or a list to block specifically while allowing all others.",
+  "sculkmuffler.gui.category-denylist": "Category Denylist (%s)",
+  "sculkmuffler.gui.category-allowlist": "Category Allowlist (%s)",
+
+  "sculkmuffler.gui.back": "Back",
 
   "sculkmuffler.gui.state.enabled": "On",
   "sculkmuffler.gui.state.disabled": "Off",
+
+  "sculkmuffler.gui.target-mode.allow": "Allowlist",
+  "sculkmuffler.gui.target-mode.deny": "Denylist",
+  "sculkmuffler.gui.target-mode.about": "When in Allowlist mode, the selected sounds will be allowed to play normally and all others will be affected by the muffler. In Denylist mode, the selected sounds are affected by the muffler while all others are allowed to play normally.",
+
+  "sculkmuffler.gui.view.nearby": "Nearby",
+  "sculkmuffler.gui.view.nearby.about": "List all sounds that have recently played within range of this muffler.",
+  "sculkmuffler.gui.view.all": "All",
+  "sculkmuffler.gui.view.all.about": "List all sounds.",
+  "sculkmuffler.gui.view.selected": "Selected",
+  "sculkmuffler.gui.view.selected.about": "List all sounds that have been selected.",
+
+  "sculkmuffler.gui.search": "Search",
+  "sculkmuffler.gui.preview": "Preview Sound",
+  "sculkmuffler.gui.mute": "Mute",
+  "sculkmuffler.gui.unmute": "Unmute",
+  "sculkmuffler.gui.page": "Page %s of %s",
+  "sculkmuffler.gui.page.next": "Next",
+  "sculkmuffler.gui.page.previous": "Prev.",
+
+  "sculkmuffler.gui.no-matches": "There are no matching sounds.",
 
   "sculkmuffler.configuration.client": "Client",
   "sculkmuffler.configuration.common": "Common",

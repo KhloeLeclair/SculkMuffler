@@ -37,9 +37,11 @@ public abstract class MixinServerLevel extends Level {
         if (key == GameRules.RULE_GLOBAL_SOUND_EVENTS) {
             // We're checking if we can play a global sound event. Within range of a Sculk Muffler, don't allow that.
             final var tracker = SculkMufflerMod.Instance == null ? null : SculkMufflerMod.Instance.Tracker;
-            if (tracker != null) {
-                final double volume = tracker.getVolume(this, pos.getCenter());
-                if (volume <= MathHelpers.logToLinear(Config.Common.antiGlobalVolume.get()))
+            final double cutoff = Config.Common.antiGlobalVolume.get();
+
+            if (tracker != null && cutoff >= 0.0) {
+                final double volume = tracker.getVolume(this, pos.getCenter(), null, null, null);
+                if (volume <= MathHelpers.logToLinear(cutoff))
                     return false;
             }
         }

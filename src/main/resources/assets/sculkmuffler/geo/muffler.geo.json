@@ -44,6 +44,11 @@
 							}
 						}
 					]
+				},
+				{
+					"name": "containment",
+					"pivot": [0, 9, 0],
+					"cubes":[]
 				}
 			]
 		}

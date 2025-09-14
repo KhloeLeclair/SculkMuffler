@@ -1,6 +1,7 @@
 {
   "values": [
-    "sculkmuffler:muffler"
+    "sculkmuffler:muffler",
+    "sculkmuffler:advanced_muffler"
   ],
   "replace": false
 }

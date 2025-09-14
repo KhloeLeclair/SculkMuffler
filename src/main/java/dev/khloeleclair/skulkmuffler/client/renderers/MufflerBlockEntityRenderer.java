@@ -25,8 +25,11 @@ import java.util.OptionalDouble;
 
 public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEntity> {
 
+    private final MufflerBlockModel mbModel;
+
     public MufflerBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         super(new MufflerBlockModel());
+        mbModel = (MufflerBlockModel) getGeoModel();
     }
 
     public static final float SIDE_OFF = 0.005f;
@@ -241,6 +244,12 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
             int packedOverlay
     ) {
         super.render(block, partialTick, poseStack, bufferSource, packedLight, packedOverlay);
+
+        if (block.isAdvanced && block.getContainmentMode()) {
+            mbModel.setContainmentPass(true);
+            super.render(block, partialTick, poseStack, bufferSource, packedLight, packedOverlay);
+            mbModel.setContainmentPass(false);
+        }
 
         int debug = block.effectiveDebug();
         if (debug != -1) {

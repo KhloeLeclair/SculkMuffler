@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "D D",
+    "CML"
+  ],
+  "key": {
+    "M": {
+      "item": "sculkmuffler:muffler"
+    },
+    "C": {
+      "item": "minecraft:comparator"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "L": {
+      "item": "minecraft:slime_block"
+    }
+  },
+  "result": {
+    "id": "sculkmuffler:advanced_muffler",
+    "count": 1
+  }
+}

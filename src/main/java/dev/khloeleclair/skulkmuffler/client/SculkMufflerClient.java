@@ -87,7 +87,8 @@ public class SculkMufflerClient {
         if (Instance == null || Instance.Tracker == null)
             return;
 
-        final var level = Minecraft.getInstance().level;
+        final var mc = Minecraft.getInstance();
+        final var level = mc.level;
         final var sound = event.getSound();
         if (level == null || sound == null)
             return;
@@ -99,10 +100,13 @@ public class SculkMufflerClient {
         if (TagCache.getIgnoreSounds().contains(sound.getLocation()))
             return;
 
+        final var listenerPos = mc.cameraEntity == null ? null : mc.cameraEntity.getEyePosition();
+
         final var pos = sound instanceof RidingMinecartSoundInstance rmsi
                 ? rmsi.minecart.position()
                 : new Vec3(sound.getX(), sound.getY(), sound.getZ());
-        Pair<Double, MufflerBlockEntity> pair = Instance.Tracker.getNearbyAndVolume(level, pos);
+
+        Pair<Double, MufflerBlockEntity> pair = Instance.Tracker.getNearbyAndVolume(level, pos, listenerPos, sound.getLocation(), sound.getSource());
 
         final double volume = pair.getLeft();
         if (volume < 1) {

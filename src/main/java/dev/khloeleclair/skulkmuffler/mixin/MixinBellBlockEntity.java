@@ -2,7 +2,6 @@ package dev.khloeleclair.skulkmuffler.mixin;
 
 import dev.khloeleclair.skulkmuffler.SculkMufflerMod;
 import dev.khloeleclair.skulkmuffler.common.Config;
-import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,6 +32,8 @@ public abstract class MixinBellBlockEntity extends BlockEntity {
     @Shadow
     private List<LivingEntity> nearbyEntities;
 
+    // TODO: Update this to work with containment mode.
+
     @Inject(method = "updateEntities", at = @At("HEAD"), cancellable = true)
     protected void onUpdateEntities(CallbackInfo ci) {
         final var level = getLevel();
@@ -40,11 +41,15 @@ public abstract class MixinBellBlockEntity extends BlockEntity {
         if (tracker == null || level == null)
             return;
 
+        final double cutoff = Config.Common.bellHeardVolume.get();
+        if (cutoff < 0.0)
+            return;
+
         final var pos = getBlockPos();
 
         // If the volume isn't low enough, resume.
-        double volume = tracker.getVolume(level, pos.getCenter());
-        if (volume > MathHelpers.logToLinear(Config.Common.bellHeardVolume.get()))
+        double volume = tracker.getVolume(level, pos.getCenter(), null, null, null);
+        if (volume > MathHelpers.logToLinear(cutoff))
             return;
 
         // Cancel the original, but update the nearby entities.
@@ -68,9 +73,13 @@ public abstract class MixinBellBlockEntity extends BlockEntity {
         if (tracker == null || level == null)
             return;
 
+        final double cutoff = Config.Common.bellHighlightVolume.get();
+        if (cutoff < 0.0)
+            return;
+
         // If the volume is low enough, cancel this.
-        double volume = tracker.getVolume(level, pos.getCenter());
-        if (volume <= MathHelpers.logToLinear(Config.Common.bellHighlightVolume.get()))
+        double volume = tracker.getVolume(level, pos.getCenter(), null, null, null);
+        if (volume <= MathHelpers.logToLinear(cutoff))
             ci.cancel();
     }
 

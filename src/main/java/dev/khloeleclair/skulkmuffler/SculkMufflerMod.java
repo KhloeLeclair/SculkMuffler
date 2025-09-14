@@ -7,7 +7,10 @@ import dev.khloeleclair.skulkmuffler.common.TagCache;
 import dev.khloeleclair.skulkmuffler.common.advancements.Conditions;
 import dev.khloeleclair.skulkmuffler.common.advancements.Triggers;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
+import dev.khloeleclair.skulkmuffler.common.blocks.AdvancedMufflerBlock;
 import dev.khloeleclair.skulkmuffler.common.blocks.MufflerBlock;
+import dev.khloeleclair.skulkmuffler.common.crafting.CopyComponentRecipe;
+import dev.khloeleclair.skulkmuffler.common.data.CustomComponents;
 import dev.khloeleclair.skulkmuffler.common.network.CustomPackets;
 import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
 import net.minecraft.core.registries.Registries;
@@ -19,6 +22,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -53,6 +58,18 @@ public class SculkMufflerMod {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, SculkMufflerMod.MODID);
+    public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, SculkMufflerMod.MODID);
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, SculkMufflerMod.MODID);
+
+    // Custom Recipe Type
+    public static final Supplier<RecipeType<CopyComponentRecipe>> COPY_COMPONENT_RECIPE_TYPE = RECIPE_TYPES.register(
+            "copy_component",
+            RecipeType::simple
+    );
+
+    public static final Supplier<RecipeSerializer<CopyComponentRecipe>> COPY_COMPONENT_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(
+            "copy_component", CopyComponentRecipe.Serializer::new
+    );
 
     // Tags
     public static final TagKey<SoundEvent> IGNORE_SOUND_TAG = TagKey.create(
@@ -67,11 +84,22 @@ public class SculkMufflerMod {
                     .destroyTime(2.5f)
                     .explosionResistance(2.5f)
                     .sound(SoundType.WOOL));
+    public static final DeferredBlock<AdvancedMufflerBlock> ADVANCED_MUFFLER_BLOCK = BLOCKS.registerBlock(
+            "advanced_muffler", AdvancedMufflerBlock::new, BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.WOOL)
+                    .destroyTime(2.5f)
+                    .explosionResistance(2.5f)
+                    .sound(SoundType.WOOL));
+
     public static final DeferredItem<BlockItem> MUFFLER_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("muffler", MUFFLER_BLOCK);
+    public static final DeferredItem<BlockItem> ADVANCED_MUFFLER_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("advanced_muffler", ADVANCED_MUFFLER_BLOCK);
+
     public static final Supplier<BlockEntityType<MufflerBlockEntity>> MUFFLER_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register(
             "muffler_entity",
-            () -> BlockEntityType.Builder.of(MufflerBlockEntity::new, MUFFLER_BLOCK.get()).build(null)
+            () -> BlockEntityType.Builder.of(MufflerBlockEntity::new, MUFFLER_BLOCK.get(), ADVANCED_MUFFLER_BLOCK.get()).build(null)
     );
+
+
 
     public final MufflerTracker Tracker;
     private WeakReference<MinecraftServer> Server;
@@ -92,6 +120,8 @@ public class SculkMufflerMod {
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         BLOCK_ENTITY_TYPES.register(modEventBus);
+        RECIPE_TYPES.register(modEventBus);
+        RECIPE_SERIALIZERS.register(modEventBus);
         Triggers.TRIGGER_TYPES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
@@ -99,6 +129,7 @@ public class SculkMufflerMod {
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
         NeoForge.EVENT_BUS.register(TagCache.class);
+        CustomComponents.register(modEventBus);
         modEventBus.addListener(CustomPackets::register);
 
         // Register the item to a creative tab
@@ -112,6 +143,7 @@ public class SculkMufflerMod {
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
             event.accept(MUFFLER_BLOCK_ITEM);
+            event.accept(ADVANCED_MUFFLER_BLOCK_ITEM);
         }
     }
 
@@ -124,15 +156,22 @@ public class SculkMufflerMod {
             if (mode == Config.SonicDamageMode.DISABLED || entity == null)
                 return;
 
-            float amount = event.getAmount();
-            final var volume = Tracker.getVolume(entity.level(), entity.position());
+            final var target_pos = event.getEntity().position();
+            final var source_pos = entity.position();
+
+            // We want to account for mufflers both at the source and target, so that standing within a muffler's range
+            // will protect you even if the warden isn't in one.
+            final var volume = Math.min(
+                    Tracker.getVolume(entity.level(), source_pos, target_pos, null, null),
+                    Tracker.getVolume(entity.level(), target_pos, source_pos, null, null)
+            );
             if (volume >= 1)
                 return;
 
             if (volume <= MathHelpers.logToLinear(Config.Common.wardenSonicNullifyVolume.get()))
                 event.setCanceled(true);
             else {
-                amount = amount * (float) volume;
+                final float amount = event.getAmount() * (float) volume;
                 event.setAmount(Math.max(amount, (float) Math.min(event.getAmount(), Config.Common.wardenSonicDamageMin.get())));
             }
 
