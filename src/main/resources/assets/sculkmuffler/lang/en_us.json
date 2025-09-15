@@ -72,6 +72,7 @@
 
   "sculkmuffler.config.muffling.sources.immune": "Immune Sound Sources",
   "sculkmuffler.config.muffling.range.renderer": "Range Renderer",
+  "sculkmuffler.config.muffling.range.mode": "Range Render Mode",
 
   "sculkmuffler.advancements.sneak_1000.title": "Sneak 1000",
   "sculkmuffler.advancements.sneak_1000.description": "Make noise near a Warden, but go undetected thanks to a Sculk Muffler.",

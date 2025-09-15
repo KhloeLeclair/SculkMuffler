@@ -9,6 +9,7 @@ import dev.khloeleclair.skulkmuffler.client.models.MufflerBlockModel;
 import dev.khloeleclair.skulkmuffler.common.Config;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
 import dev.khloeleclair.skulkmuffler.common.utilities.Constants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
@@ -75,13 +76,13 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
     }
 
     @Override
-    public boolean shouldRenderOffScreen(MufflerBlockEntity blockEntity) {
-        return blockEntity.effectiveDebug() != -1;
+    public boolean shouldRenderOffScreen(@NotNull MufflerBlockEntity block) {
+        return getEffectiveDebug(block) != -1;
     }
 
     @Override
     public @NotNull AABB getRenderBoundingBox(MufflerBlockEntity block) {
-        if (block.effectiveDebug() != -1) {
+        if (getEffectiveDebug(block) != -1) {
             final var center = block.getCenter();
             final float x = center.getX();
             final float y = center.getY();
@@ -234,6 +235,20 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
         poseStack.popPose();
     }
 
+    public static boolean isDebugOpen() {
+        return Minecraft.getInstance().gui.getDebugOverlay().showDebugScreen();
+    }
+
+    public int getEffectiveDebug(@NotNull MufflerBlockEntity block) {
+        return switch (Config.Client.rangeRenderMode.get()) {
+            case Config.RangeRenderMode.WITH_DEBUG ->
+                    isDebugOpen() ? 0 : -1;
+            case Config.RangeRenderMode.PER_BLOCK_WITH_DEBUG ->
+                    isDebugOpen() ? block.effectiveDebug() : -1;
+            default -> block.effectiveDebug();
+        };
+    }
+
     @Override
     public void render(
             @NotNull MufflerBlockEntity block,
@@ -251,7 +266,7 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
             mbModel.setContainmentPass(false);
         }
 
-        int debug = block.effectiveDebug();
+        int debug = getEffectiveDebug(block);
         if (debug != -1) {
             if (Config.Client.rangeRenderer.get() == Config.RangeRenderer.SOLID) {
                 setColor(Constants.AREAS[debug]);

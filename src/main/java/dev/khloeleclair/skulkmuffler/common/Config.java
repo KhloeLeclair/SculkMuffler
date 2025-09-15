@@ -19,6 +19,12 @@ public class Config {
         LINES
     }
 
+    public enum RangeRenderMode {
+        PER_BLOCK,
+        PER_BLOCK_WITH_DEBUG,
+        WITH_DEBUG
+    }
+
     public enum SonicDamageMode {
         DISABLED,
         SCALED,
@@ -117,6 +123,7 @@ public class Config {
     public static class _Client {
         public final ModConfigSpec.ConfigValue<List<? extends String>> immuneSources;
         public final ModConfigSpec.EnumValue<RangeRenderer> rangeRenderer;
+        public final ModConfigSpec.EnumValue<RangeRenderMode> rangeRenderMode;
 
         _Client(ModConfigSpec.Builder builder) {
             builder.comment("Client-Only Configuration").push("client");
@@ -142,6 +149,11 @@ public class Config {
                     .comment("How the range is rendered when requested. Solid can cause issues due to translucency rendering.")
                     .translation("sculkmuffler.config.muffling.range.renderer")
                     .defineEnum("rangeRenderer", RangeRenderer.LINES);
+
+            rangeRenderMode = builder
+                    .comment("When the range should be rendered. PER_BLOCK for following each Muffler's configured state, PER_BLOCK_WITH_DEBUG only renders when the client's F3 screen is open. WITH_DEBUG shows all muffler's ranges when the client's F3 screen is open, regardless of setting.")
+                    .translation("sculkmuffler.config.muffling.range.mode")
+                    .defineEnum("rangeRenderMode", RangeRenderMode.PER_BLOCK);
 
             builder.pop();
         }

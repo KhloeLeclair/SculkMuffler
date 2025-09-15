@@ -31,9 +31,6 @@ public class MufflerCategoryListScreen extends Screen {
     private final StringWidget[] labels;
     private final IconButton[] selectButtons;
 
-    //@Nullable
-    //private StringWidget lblWarning;
-
     @Nullable
     private IconButton btnPrevious;
     private IconButton btnNext;
@@ -43,6 +40,10 @@ public class MufflerCategoryListScreen extends Screen {
 
     private int page;
     private int pages;
+    private int perPage;
+
+    private int labelWidth;
+    private int spacerHeight;
 
     public MufflerCategoryListScreen(MufflerBlockEntity mbe) {
         super(mbe.getBlockState().getBlock().getName());
@@ -51,6 +52,7 @@ public class MufflerCategoryListScreen extends Screen {
 
         // Defaults
         page = -1;
+        perPage = 10;
 
         // Create our widget storage with 10 slots each.
         labels = new StringWidget[10];
@@ -71,14 +73,39 @@ public class MufflerCategoryListScreen extends Screen {
             return aN.compareToIgnoreCase(bN);
         });
 
-        pages = Math.max(1, Math.ceilDiv(all_categories.size(), 10));
+        pages = Math.max(1, Math.ceilDiv(all_categories.size(), perPage));
 
     }
 
     @Override
     protected void init() {
         page = 0;
+        resizeElements();
         layoutPage();
+    }
+
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        super.resize(minecraft, width, height);
+        resizeElements();
+        layoutPage();
+    }
+
+    private void resizeElements() {
+        // If the screen is smaller than 640x360, we need to compact things.
+        perPage = 10;
+        spacerHeight = 10;
+        labelWidth = 400;
+
+        if (width < 640)
+            labelWidth = Math.max(100, width - 172);
+
+        if (height < 360) {
+            spacerHeight = 5;
+            perPage = Math.clamp((height - 64) / 22, 2, 10);
+        }
+
+        pages = Math.max(1, Math.ceilDiv(all_categories.size(), perPage));
     }
 
     private void changePage(int p) {
@@ -162,11 +189,10 @@ public class MufflerCategoryListScreen extends Screen {
             btnMode = IconButton.builder(getModeLabel(mbe.isTargetCategoryAllowlist()), m -> {
                 mbe.setTargetCategoryAllowlist(! mbe.isTargetCategoryAllowlist());
                 btnMode.setMessage(getModeLabel(mbe.isTargetCategoryAllowlist()));
-                //lblWarning.visible = !mbe.isTargetCategoryAllowlist() && !mbe.hasTargetCategories();
 
                 // Update all the labels of all the mute buttons.
                 for(int i = 0; i < 10; i++) {
-                    int idx = (page * 10) + i;
+                    int idx = (page * perPage) + i;
                     if (idx >= all_categories.size())
                         break;
 
@@ -205,19 +231,17 @@ public class MufflerCategoryListScreen extends Screen {
         btnNext.active = page < pages - 1;
 
         // Spacer Line / Warning
-        /*if (lblWarning == null) {
-            lblWarning = new StringWidget(Component.translatable("sculkmuffler.gui.target-mode.deny.notice").setStyle(Constants.YELLOW), font);
-            lblWarning.alignRight();
-        }
-
-        lblWarning.visible = !mbe.isTargetCategoryAllowlist() && !mbe.hasTargetCategories();
-
-        helper.addChild(lblWarning);*/
-        helper.addChild(new SpacerElement(50, 10), 4);
+        helper.addChild(new SpacerElement(50, spacerHeight), 4);
 
         // Build the widgets
         for(int i = 0; i < 10; i++) {
-            int idx = (page * 10) + i;
+            if (i >= perPage) {
+                labels[i] = null;
+                selectButtons[i] = null;
+                continue;
+            }
+
+            int idx = (page * perPage) + i;
             if (idx >= all_categories.size()) {
                 if (idx == 0) {
                     var widget = new StringWidget(Component.translatable("sculkmuffler.gui.no-matches"), font);
@@ -237,7 +261,7 @@ public class MufflerCategoryListScreen extends Screen {
             final var selected = mbe.hasTargetCategory(category);
 
             var label = new StringWidget(getLabel(category, selected), font);
-            label.setWidth(400);
+            label.setWidth(labelWidth);
             label.alignLeft();
             labels[i] = label;
 
@@ -254,7 +278,7 @@ public class MufflerCategoryListScreen extends Screen {
             helper.addChild(selectButton);
         }
 
-        helper.addChild(new SpacerElement(50, 10), 4);
+        helper.addChild(new SpacerElement(50, spacerHeight), 4);
 
         layout.arrangeElements();
         FrameLayout.alignInRectangle(layout, 0, 0, this.width, this.height, 0.5f, 0.5f);
@@ -294,7 +318,7 @@ public class MufflerCategoryListScreen extends Screen {
 
     public void sendUpdate() {
         waitingTicks = -1;
-        CustomPackets.UpdateMuffler.sendUpdate(mbe);
+        mbe.sendUpdatePacket();
     }
 
 }

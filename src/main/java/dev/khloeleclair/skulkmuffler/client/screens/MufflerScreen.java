@@ -5,7 +5,6 @@ import dev.khloeleclair.skulkmuffler.client.gui.widgets.AdjustableExtendedSlider
 import dev.khloeleclair.skulkmuffler.client.gui.widgets.IconButton;
 import dev.khloeleclair.skulkmuffler.common.Config;
 import dev.khloeleclair.skulkmuffler.common.blockentities.MufflerBlockEntity;
-import dev.khloeleclair.skulkmuffler.common.network.CustomPackets;
 import dev.khloeleclair.skulkmuffler.common.utilities.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -275,7 +274,7 @@ public class MufflerScreen extends Screen {
         mbe.setRange(range);
         mbe.setVolume(volume);
 
-        CustomPackets.UpdateMuffler.sendUpdate(mbe);
+        mbe.sendUpdatePacket();
     }
 }
 

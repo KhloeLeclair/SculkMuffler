@@ -17,6 +17,13 @@ Finally, the Sculk Muffler can be turned off via redstone.
 
 ## Changelog
 
+### 1.3
+
+* Added: Option for only rendering muffler range when the F3 debug information
+  is visible.
+* Changed: Resize the sound list menu to fit on smaller displays when necessary.
+
+
 ### 1.2
 
 * Added: Support for muffling global sound events (Wither spawning, etc.) by

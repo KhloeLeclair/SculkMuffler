@@ -119,8 +119,9 @@ public class CustomPackets {
             return TYPE;
         }
 
-        public static void sendUpdate(MufflerBlockEntity mbe) {
-            PacketDistributor.sendToServer(new UpdateMuffler(
+        @NotNull
+        public static UpdateMuffler makeUpdatePacket(@NotNull MufflerBlockEntity mbe) {
+            return new UpdateMuffler(
                     mbe.getBlockPos(),
                     mbe.getRange(),
                     mbe.getOffsetX(),
@@ -131,9 +132,8 @@ public class CustomPackets {
                     mbe.getContainmentMode(),
                     mbe.isTargetAllowlist(),
                     mbe.isTargetCategoryAllowlist()
-            ));
+            );
         }
-
     }
 
     public static void register(final RegisterPayloadHandlersEvent event) {
@@ -146,22 +146,29 @@ public class CustomPackets {
         registrar.playBidirectional(ModifyMuffledList.TYPE, ModifyMuffledList.STREAM_CODEC, CustomPackets::onModifyMuffledList);
         registrar.playBidirectional(ModifyMuffledCategoryList.TYPE, ModifyMuffledCategoryList.STREAM_CODEC, CustomPackets::onModifyMuffledCategoryList);
 
-        registrar.playToServer(UpdateMuffler.TYPE, UpdateMuffler.STREAM_CODEC, (message, access) -> {
-            final var level = access.player().level();
-            if (level == null || !(level.getBlockEntity(message.pos) instanceof MufflerBlockEntity mbe))
-                return;
+        registrar.playBidirectional(UpdateMuffler.TYPE, UpdateMuffler.STREAM_CODEC, CustomPackets::onUpdateMuffler);
+    }
 
-            mbe.setRange(message.range);
-            mbe.setVolume(message.volume);
-            mbe.setDebug(message.debug);
-            mbe.setOffset(message.offset_x, message.offset_y, message.offset_z);
-            mbe.setContainmentMode(message.containment);
-            mbe.setTargetAllowlist(message.target_whitelist);
-            mbe.setTargetCategoryAllowlist(message.category_whitelist);
-            mbe.sendClientUpdate();
+    public static void onUpdateMuffler(UpdateMuffler message, IPayloadContext access) {
+        final var level = access.player().level();
+        if (level == null || !(level.getBlockEntity(message.pos) instanceof MufflerBlockEntity mbe))
+            return;
+
+        boolean changed;
+
+        changed = mbe.setRange(message.range);
+        changed = mbe.setVolume(message.volume) || changed;
+        changed = mbe.setDebug(message.debug) || changed;
+        changed = mbe.setOffset(message.offset_x, message.offset_y, message.offset_z) || changed;
+        changed = mbe.setContainmentMode(message.containment) || changed;
+        changed = mbe.setTargetAllowlist(message.target_whitelist) || changed;
+        changed = mbe.setTargetCategoryAllowlist(message.category_whitelist) || changed;
+
+        if (changed && (level instanceof ServerLevel)) {
+            // Send this around to nearby players.
+            mbe.sendUpdatePacket();
             mbe.setChanged();
-        });
-
+        }
     }
 
     public static void onModifyMuffledList(ModifyMuffledList message, IPayloadContext access) {

@@ -21,6 +21,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -52,9 +53,6 @@ public class MufflerSoundListScreen extends Screen {
 
     private ListingMode viewMode;
 
-    //@Nullable
-    //private StringWidget lblWarning;
-
     @Nullable
     private IconButton btnPrevious;
     private IconButton btnNext;
@@ -75,6 +73,10 @@ public class MufflerSoundListScreen extends Screen {
 
     private int page;
     private int pages;
+    private int perPage;
+
+    private int labelWidth;
+    private int spacerHeight;
 
     @Nullable
     private SoundInstance currentlyPlayingSound;
@@ -89,6 +91,7 @@ public class MufflerSoundListScreen extends Screen {
         soundManager = Minecraft.getInstance().getSoundManager();
 
         // Defaults
+        perPage = 10;
         currentlyPlaying = -1;
         page = -1;
         viewMode = ListingMode.NEARBY;
@@ -153,13 +156,42 @@ public class MufflerSoundListScreen extends Screen {
         } else
             filtered_sounds.addAll(all_sounds);
 
-        pages = Math.max(1, Math.ceilDiv(filtered_sounds.size(), 10));
+        pages = Math.max(1, Math.ceilDiv(filtered_sounds.size(), perPage));
     }
 
     @Override
     protected void init() {
         page = 0;
+        resizeElements();
         layoutPage();
+    }
+
+    @Override
+    public void resize(@NotNull Minecraft minecraft, int width, int height) {
+        super.resize(minecraft, width, height);
+        resizeElements();
+        layoutPage();
+    }
+
+    private void resizeElements() {
+
+        // If the screen is smaller than 640x360, we need to compact things.
+        perPage = 10;
+        spacerHeight = 10;
+        labelWidth = 400;
+
+        if (width < 640)
+            labelWidth = Math.max(100, width - 172);
+
+        if (height < 360) {
+            spacerHeight = 5;
+            perPage = Math.clamp((height - 86) / 22, 2, 10);
+        }
+
+        if (txtSearch != null)
+            txtSearch.setWidth(labelWidth);
+
+        pages = Math.max(1, Math.ceilDiv(filtered_sounds.size(), perPage));
     }
 
     private void changePage(int p) {
@@ -284,11 +316,10 @@ public class MufflerSoundListScreen extends Screen {
             btnMode = IconButton.builder(getModeLabel(mbe.isTargetAllowlist()), m -> {
                 mbe.setTargetAllowlist(! mbe.isTargetAllowlist());
                 btnMode.setMessage(getModeLabel(mbe.isTargetAllowlist()));
-                //lblWarning.visible = !mbe.isTargetWhitelist() && !mbe.hasTargets();
 
                 // Update all the labels of all the mute buttons.
                 for(int i = 0; i < 10; i++) {
-                    int idx = (page * 10) + i;
+                    int idx = (page * perPage) + i;
                     if (idx >= filtered_sounds.size())
                         break;
 
@@ -326,20 +357,19 @@ public class MufflerSoundListScreen extends Screen {
         helper.addChild(btnNext);
         btnNext.active = page < pages - 1;
 
-        // Spacer Line / Warning
-        /*if (lblWarning == null) {
-            lblWarning = new StringWidget(Component.translatable("sculkmuffler.gui.target-mode.deny.notice").setStyle(Constants.YELLOW), font);
-            lblWarning.alignRight();
-        }
-
-        lblWarning.visible = !mbe.isTargetWhitelist() && !mbe.hasTargets();
-
-        helper.addChild(lblWarning);*/
-        helper.addChild(new SpacerElement(50, 10), 4);
+        // Spacer Line
+        helper.addChild(new SpacerElement(50, spacerHeight), 4);
 
         // Build the widgets
         for(int i = 0; i < 10; i++) {
-            int idx = (page * 10) + i;
+            if (i >= perPage) {
+                labels[i] = null;
+                selectButtons[i] = null;
+                playButtons[i] = null;
+                continue;
+            }
+
+            int idx = (page * perPage) + i;
             if (idx >= filtered_sounds.size()) {
                 if (idx == 0) {
                     var widget = new StringWidget(Component.translatable("sculkmuffler.gui.no-matches"), font);
@@ -360,7 +390,7 @@ public class MufflerSoundListScreen extends Screen {
             final var muted = mbe.hasTarget(location);
 
             var label = new StringWidget(getLabel(location, muted), font);
-            label.setWidth(400);
+            label.setWidth(labelWidth);
             label.alignLeft();
             labels[i] = label;
 
@@ -383,10 +413,10 @@ public class MufflerSoundListScreen extends Screen {
             helper.addChild(selectButton);
         }
 
-        helper.addChild(new SpacerElement(50, 10), 4);
+        helper.addChild(new SpacerElement(50, spacerHeight), 4);
 
         if (txtSearch == null) {
-            txtSearch = new EditBox(font, 0, 0, 400, 20, Component.translatable("sculkmuffler.gui.search"));
+            txtSearch = new EditBox(font, 0, 0, labelWidth, 20, Component.translatable("sculkmuffler.gui.search"));
             txtSearch.setHint(Component.translatable("sculkmuffler.gui.search"));
             txtSearch.setResponder(value -> {
                 query = value;
@@ -484,7 +514,7 @@ public class MufflerSoundListScreen extends Screen {
 
     public void sendUpdate() {
         waitingTicks = -1;
-        CustomPackets.UpdateMuffler.sendUpdate(mbe);
+        mbe.sendUpdatePacket();
     }
 
 }

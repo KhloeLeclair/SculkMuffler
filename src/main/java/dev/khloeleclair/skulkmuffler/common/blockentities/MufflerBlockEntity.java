@@ -6,6 +6,7 @@ import dev.khloeleclair.skulkmuffler.common.Config;
 import dev.khloeleclair.skulkmuffler.common.blocks.AdvancedMufflerBlock;
 import dev.khloeleclair.skulkmuffler.common.blocks.MufflerBlock;
 import dev.khloeleclair.skulkmuffler.common.data.CustomComponents;
+import dev.khloeleclair.skulkmuffler.common.network.CustomPackets;
 import dev.khloeleclair.skulkmuffler.common.utilities.Constants;
 import dev.khloeleclair.skulkmuffler.common.utilities.MathHelpers;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -24,8 +25,10 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Nameable;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,6 +38,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -363,12 +367,13 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity, N
     public int getOffsetY() { return offset_y; }
     public int getOffsetZ() { return offset_z; }
 
-    public void setOffset(int x, int y, int z) {
+    public boolean setOffset(int x, int y, int z) {
         boolean update = setOffsetX(x, false);
         update = setOffsetY(y, false) || update;
         update = setOffsetZ(z, update) || update;
         if (update)
             updateMuffler();
+        return update;
     }
 
     public boolean setOffsetX(int value, boolean update) {
@@ -510,11 +515,13 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity, N
     }
 
     public int getDebug() { return debug_draw; }
-    public void setDebug(int value) {
+    public boolean setDebug(int value) {
+        int old_debug = debug_draw;
         if (value < 0 || value >= Constants.AREAS.length)
             debug_draw = -1;
         else
             debug_draw = value;
+        return old_debug != debug_draw;
     }
 
     public void toggleDebug() {
@@ -541,8 +548,12 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity, N
         return containmentMode;
     }
 
-    public void setContainmentMode(boolean enabled) {
-        containmentMode = isAdvanced && enabled;
+    public boolean setContainmentMode(boolean enabled) {
+        enabled = isAdvanced && enabled;
+        if (enabled == containmentMode)
+            return false;
+        containmentMode = enabled;
+        return true;
     }
 
     public boolean addTargetCategory(SoundSource source) {
@@ -645,17 +656,26 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity, N
         return false;
     }
 
-    public void sendClientUpdate() {
+    public void sendUpdatePacket() {
         if (level == null)
             return;
-        final var state = getBlockState();
-        level.sendBlockUpdated(getBlockPos(), state, state, 6);
+
+        final var packet = CustomPackets.UpdateMuffler.makeUpdatePacket(this);
+
+        if (level instanceof ServerLevel sl)
+            PacketDistributor.sendToPlayersTrackingChunk(sl, new ChunkPos(packet.pos()), packet);
+        else
+            PacketDistributor.sendToServer(packet);
     }
 
-    public void setVolume(double volume) {
-        this.volume = Math.clamp(volume, Config.Common.minVolume.get(), 1);
+    public boolean setVolume(double volume) {
+        volume = Math.clamp(volume, Config.Common.minVolume.get(), 1);
+        if (volume == this.volume)
+            return false;
+        this.volume = volume;
         updateVolumes();
         updateMuffler();
+        return true;
     }
 
     public double getVolumeLog() { return volume_linear; }
@@ -664,12 +684,16 @@ public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity, N
 
     public double getVolume() { return volume; }
 
-    public void setRange(int range) {
-        this.range = Math.clamp(range, 0, Config.Common.maxRange.get());
+    public boolean setRange(int range) {
+        range = Math.clamp(range, 0, Config.Common.maxRange.get());
+        if (range == this.range)
+            return false;
+        this.range = range;
         setOffsetX(offset_x, false);
         setOffsetY(offset_y, false);
         setOffsetZ(offset_z, false);
         updateMuffler();
+        return true;
     }
 
     public int getRange() { return range; }
