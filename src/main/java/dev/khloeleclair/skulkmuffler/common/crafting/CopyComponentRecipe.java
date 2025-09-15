@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.khloeleclair.skulkmuffler.SculkMufflerMod;
 import dev.khloeleclair.skulkmuffler.common.data.CustomComponents;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -26,11 +25,6 @@ public class CopyComponentRecipe extends CustomRecipe {
     @NotNull
     public Ingredient getIngredient() {
         return ingredient;
-    }
-
-    @Override
-    public @NotNull NonNullList<Ingredient> getIngredients() {
-        return NonNullList.of(ingredient);
     }
 
     @Override
@@ -62,16 +56,6 @@ public class CopyComponentRecipe extends CustomRecipe {
 
     @Override
     @NotNull
-    public ItemStack getResultItem(@NotNull HolderLookup.Provider registries) {
-        var items = ingredient.getItems();
-        if (items != null && items.length > 0)
-            return items[0];
-
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    @NotNull
     public ItemStack assemble(@NotNull CraftingInput input, @NotNull HolderLookup.Provider registries) {
         ItemStack configured = ItemStack.EMPTY;
         int unconfigured = 0;
@@ -98,16 +82,9 @@ public class CopyComponentRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 2;
-    }
-
-    @Override
-    @NotNull
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends CustomRecipe> getSerializer() {
         return SculkMufflerMod.COPY_COMPONENT_RECIPE_SERIALIZER.get();
     }
-
 
     public static class Serializer implements RecipeSerializer<CopyComponentRecipe> {
 

@@ -15,7 +15,8 @@ public class TagCache {
 
     public static Set<ResourceLocation> getIgnoreSounds() {
         if (ignoreSounds == null) {
-            ignoreSounds = BuiltInRegistries.SOUND_EVENT.getOrCreateTag(SculkMufflerMod.IGNORE_SOUND_TAG)
+            ignoreSounds = BuiltInRegistries.SOUND_EVENT.get(SculkMufflerMod.IGNORE_SOUND_TAG)
+                    .get()
                     .stream()
                     .map(x -> x.getKey().location()).collect(Collectors.toUnmodifiableSet());
         }

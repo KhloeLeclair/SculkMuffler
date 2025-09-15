@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoRenderer;
 
 public class MufflerBlockModel extends GeoModel<MufflerBlockEntity> {
 
@@ -34,13 +35,23 @@ public class MufflerBlockModel extends GeoModel<MufflerBlockEntity> {
         return super.getRenderType(animatable, texture);
     }
 
-    @Override
+    /*@Override
     public ResourceLocation getModelResource(MufflerBlockEntity animatable) {
         return containment_pass ? MODEL_CONTAINMENT : MODEL;
     }
 
     @Override
     public ResourceLocation getTextureResource(MufflerBlockEntity animatable) {
+        return containment_pass ? TEXTURE_CONTAINMENT : TEXTURE;
+    }*/
+
+    @Override
+    public ResourceLocation getModelResource(MufflerBlockEntity animatable, @Nullable GeoRenderer<MufflerBlockEntity> renderer) {
+        return containment_pass ? MODEL_CONTAINMENT : MODEL;
+    }
+
+    @Override
+    public ResourceLocation getTextureResource(MufflerBlockEntity animatable, @Nullable GeoRenderer<MufflerBlockEntity> renderer) {
         return containment_pass ? TEXTURE_CONTAINMENT : TEXTURE;
     }
 

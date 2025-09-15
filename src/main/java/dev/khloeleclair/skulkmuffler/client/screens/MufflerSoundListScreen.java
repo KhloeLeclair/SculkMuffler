@@ -264,7 +264,8 @@ public class MufflerSoundListScreen extends Screen {
                 return;
         }
 
-        final var sound = BuiltInRegistries.SOUND_EVENT.get(location);
+        final var holder = BuiltInRegistries.SOUND_EVENT.get(location);
+        final var sound = holder.isPresent() ? holder.get().value() : null;
         if (sound == null)
             return;
 

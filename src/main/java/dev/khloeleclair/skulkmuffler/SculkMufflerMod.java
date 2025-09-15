@@ -96,7 +96,10 @@ public class SculkMufflerMod {
 
     public static final Supplier<BlockEntityType<MufflerBlockEntity>> MUFFLER_BLOCK_ENTITY = BLOCK_ENTITY_TYPES.register(
             "muffler_entity",
-            () -> BlockEntityType.Builder.of(MufflerBlockEntity::new, MUFFLER_BLOCK.get(), ADVANCED_MUFFLER_BLOCK.get()).build(null)
+            () -> new BlockEntityType<>(
+                    MufflerBlockEntity::new,
+                    MUFFLER_BLOCK.get(), ADVANCED_MUFFLER_BLOCK.get()
+            )
     );
 
 

@@ -41,7 +41,6 @@ import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.*;
@@ -53,7 +52,8 @@ import java.util.Set;
 
 public class MufflerBlockEntity extends BlockEntity implements GeoBlockEntity, Nameable {
 
-    public static final Vector3f DIMGRAY_PARTICLE_COLOR = new Vector3f(0.2f, 0.2f, 0.2f);
+    //public static final Vector3f DIMGRAY_PARTICLE_COLOR = new Vector3f(0.2f, 0.2f, 0.2f);
+    public static final int DIMGRAY_PARTICLE_COLOR = 0x333333;
     public static final DustColorTransitionOptions SOUND_ABSORBED_PARTICLE = new DustColorTransitionOptions(
             DustColorTransitionOptions.SCULK_PARTICLE_COLOR,
             DIMGRAY_PARTICLE_COLOR,

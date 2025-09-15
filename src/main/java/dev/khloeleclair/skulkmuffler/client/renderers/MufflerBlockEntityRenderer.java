@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
@@ -43,9 +43,9 @@ public class MufflerBlockEntityRenderer extends GeoBlockRenderer<MufflerBlockEnt
     private int cB;
 
     private void setColor(int packed) {
-        cR = FastColor.ARGB32.red(packed);
-        cG = FastColor.ARGB32.green(packed);
-        cB = FastColor.ARGB32.blue(packed);
+        cR = ARGB.red(packed);
+        cG = ARGB.green(packed);
+        cB = ARGB.blue(packed);
     }
 
     public static final RenderType test = RenderType.create(

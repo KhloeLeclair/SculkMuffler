@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -159,7 +160,7 @@ public class IconButton extends AbstractButton {
 
             int offsetY = (height - spriteHeight) / 2;
 
-            guiGraphics.blitSprite(sprite, getX() + offset, getY() + offsetY, spriteWidth, spriteHeight);
+            guiGraphics.blitSprite(RenderType::guiTextured, sprite, getX() + offset, getY() + offsetY, spriteWidth, spriteHeight);
             offset += 2 + spriteWidth;
         }
 
